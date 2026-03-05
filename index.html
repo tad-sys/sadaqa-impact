@@ -99,18 +99,18 @@
                 <div id="liste-actions" class="space-y-4"></div>
                 
                 <div class="flex flex-wrap gap-4 mt-4">
-                    <button onclick="ajouterLigne()" class="text-emerald-600 font-bold hover:text-emerald-700 transition-colors">+ Ajouter un projet personnalisé</button>
-                    <button onclick="toggleCatalogue()" class="text-blue-600 font-bold hover:text-blue-700 transition-colors">💡 Voir des idées de projets</button>
+                    <button onclick="ajouterLigne()" class="text-emerald-600 font-bold hover:text-emerald-700 transition-colors">+ Personnalisé</button>
+                    <button onclick="toggleCatalogue()" class="text-blue-600 font-bold hover:text-blue-700 transition-colors">💡 Catalogue d'idées</button>
                 </div>
 
                 <div id="catalogue-idees" class="hidden bg-blue-50 p-6 rounded-[2rem] border border-blue-100 animate-fade-in grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                    <p class="col-span-full text-xs font-bold text-blue-800 uppercase mb-2">Cliquez pour ajouter :</p>
-                    <button onclick="ajouterIdee('Construction d\'un Puits', 'https://www.helloasso.com/recherche?q=puits')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">💧 Puits d'eau potable</button>
-                    <button onclick="ajouterIdee('Soutien aux Orphelins', 'https://www.helloasso.com/recherche?q=orphelins')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🧒 Parrainage Orphelins</button>
-                    <button onclick="ajouterIdee('Repas de Rupture (Iftar)', 'https://www.helloasso.com/recherche?q=iftar')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🍲 Repas Alimentaires</button>
-                    <button onclick="ajouterIdee('Plantation d\'arbres fruitiers', 'https://www.helloasso.com/recherche?q=arbres')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🌳 Arbres Fruitiers</button>
-                    <button onclick="ajouterIdee('Construction d\'une Mosquée', 'https://www.helloasso.com/recherche?q=mosquee')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🕌 Édification Mosquée</button>
-                    <button onclick="ajouterIdee('Aide Médicale d\'Urgence', 'https://www.helloasso.com/recherche?q=sante')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🚑 Soins & Médicaments</button>
+                    <p class="col-span-full text-xs font-bold text-blue-800 uppercase mb-2">Idées prêtes à l'emploi :</p>
+                    <button onclick="ajouterIdee('Construction de Puits d\'eau', 'https://www.google.com/search?q=site:helloasso.com+construction+puits+don')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">💧 Puits d'eau</button>
+                    <button onclick="ajouterIdee('Parrainage d\'Orphelins', 'https://www.google.com/search?q=site:helloasso.com+parrainage+orphelins')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🧒 Orphelins</button>
+                    <button onclick="ajouterIdee('Colis Alimentaires / Iftar', 'https://www.google.com/search?q=site:helloasso.com+colis+alimentaire+ramadan')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🍲 Aide Alimentaire</button>
+                    <button onclick="ajouterIdee('Plantation d\'oliviers', 'https://www.google.com/search?q=site:helloasso.com+plantation+oliviers')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🌳 Arbres Fruitiers</button>
+                    <button onclick="ajouterIdee('Soutien aux Mosquées', 'https://www.google.com/search?q=site:helloasso.com+don+mosquée')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🕌 Mosquées</button>
+                    <button onclick="ajouterIdee('Soin Médical et Santé', 'https://www.google.com/search?q=site:helloasso.com+aide+médicale+don')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🚑 Santé & Soins</button>
                 </div>
             </div>
         </main>
@@ -148,11 +148,8 @@
 
         let currentUserId = null;
 
-        // --- NAVIGATION ---
         function cacherToutesVues() {
-            ['vue-login', 'app-dashboard', 'app-editor', 'app-public'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
+            ['vue-login', 'app-dashboard', 'app-editor', 'app-public'].forEach(id => document.getElementById(id).classList.add('hidden'));
             document.getElementById('nav-aperçu').classList.add('hidden');
         }
 
@@ -167,7 +164,6 @@
             document.getElementById('app-editor').classList.remove('hidden');
             document.getElementById('liste-actions').innerHTML = '';
             document.getElementById('catalogue-idees').classList.add('hidden');
-            
             if (liste) {
                 document.getElementById('edit-id').value = liste.id;
                 document.getElementById('input-titre').value = liste.titre;
@@ -182,18 +178,9 @@
             }
         }
 
-        // --- CATALOGUE D'IDÉES ---
-        function toggleCatalogue() {
-            document.getElementById('catalogue-idees').classList.toggle('hidden');
-        }
+        function toggleCatalogue() { document.getElementById('catalogue-idees').classList.toggle('hidden'); }
+        function ajouterIdee(nom, url) { ajouterLigne(nom, url); }
 
-        function ajouterIdee(nom, url) {
-            ajouterLigne(nom, url);
-            // Optionnel : masquer le catalogue après ajout
-            // document.getElementById('catalogue-idees').classList.add('hidden');
-        }
-
-        // --- AUTHENTIFICATION ---
         async function handleLogin() {
             const { data, error } = await _supabase.auth.signInWithPassword({
                 email: document.getElementById('login-email').value,
@@ -220,34 +207,22 @@
             document.getElementById('btn-auth-primary').onclick = isLogin ? handleSignup : handleLogin;
         }
 
-        // --- GESTION DES LISTES ---
         async function chargerMesListes() {
             const { data } = await _supabase.from('listes_dons').select('*').eq('user_id', currentUserId).order('created_at', { ascending: false });
             const container = document.getElementById('container-listes');
             container.innerHTML = '';
-            
             data.forEach(liste => {
                 const div = document.createElement('div');
                 div.className = "bg-white p-7 rounded-[2.5rem] shadow-sm border border-gray-100 animate-fade-in flex flex-col";
                 div.innerHTML = `
-                    <div class="mb-6">
-                        <h3 class="font-bold text-xl mb-1 line-clamp-2">${liste.titre || 'Sans titre'}</h3>
-                        <p class="text-emerald-600 text-[10px] font-black uppercase tracking-widest">${liste.type_don}</p>
-                    </div>
+                    <div class="mb-6"><h3 class="font-bold text-xl mb-1 line-clamp-2">${liste.titre || 'Sans titre'}</h3><p class="text-emerald-600 text-[10px] font-black uppercase tracking-widest">${liste.type_don}</p></div>
                     <div class="flex flex-col gap-2">
-                        <button onclick='chargerVuePublique("${liste.id}", true)' class="w-full bg-blue-600 text-white py-3 rounded-2xl text-xs font-bold hover:bg-blue-700 shadow-md">
-                            👁️ Voir l'aperçu
-                        </button>
+                        <button onclick='chargerVuePublique("${liste.id}", true)' class="w-full bg-blue-600 text-white py-3 rounded-2xl text-xs font-bold hover:bg-blue-700 shadow-md">👁️ Voir l'aperçu</button>
                         <div class="flex gap-2">
-                            <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="flex-1 bg-gray-100 py-3 rounded-2xl text-xs font-bold hover:bg-gray-200">
-                                ⚙️ Modifier
-                            </button>
-                            <button onclick='copierLien("${liste.id}")' class="flex-1 bg-emerald-50 text-emerald-700 py-3 rounded-2xl text-xs font-bold hover:bg-emerald-100">
-                                🔗 Partager
-                            </button>
+                            <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="flex-1 bg-gray-100 py-3 rounded-2xl text-xs font-bold hover:bg-gray-200">⚙️ Modifier</button>
+                            <button onclick='copierLien("${liste.id}")' class="flex-1 bg-emerald-50 text-emerald-700 py-3 rounded-2xl text-xs font-bold hover:bg-emerald-100">🔗 Partager</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 container.appendChild(div);
             });
         }
@@ -259,21 +234,9 @@
                 const url = item.querySelector('.action-url').value;
                 if(nom && url) projects.push({ nom: nom.trim(), url: url.trim() });
             });
-
             const id = document.getElementById('edit-id').value;
-            const payload = {
-                user_id: currentUserId,
-                titre: document.getElementById('input-titre').value || "Ma Collecte",
-                description: document.getElementById('input-desc').value,
-                type_don: document.getElementById('input-type').value,
-                projets: projects,
-                organisateur_nom: "Organisateur"
-            };
-
-            const { error } = id 
-                ? await _supabase.from('listes_dons').update(payload).eq('id', id)
-                : await _supabase.from('listes_dons').insert([payload]);
-
+            const payload = { user_id: currentUserId, titre: document.getElementById('input-titre').value || "Ma Collecte", description: document.getElementById('input-desc').value, type_don: document.getElementById('input-type').value, projets: projects, organisateur_nom: "Organisateur" };
+            const { error } = id ? await _supabase.from('listes_dons').update(payload).eq('id', id) : await _supabase.from('listes_dons').insert([payload]);
             if (error) alert(error.message); else retourDashboard();
         }
 
@@ -283,39 +246,26 @@
             alert("Lien de partage copié !");
         }
 
-        // --- VUE PUBLIQUE / APERÇU (IMAGES INCLUSES) ---
         async function chargerVuePublique(id, estApercu = false) {
             const { data } = await _supabase.from('listes_dons').select('*').eq('id', id).single();
             if (!data) return;
-            
             cacherToutesVues();
             document.getElementById('app-public').classList.remove('hidden');
-            
-            if(estApercu) {
-                document.getElementById('nav-aperçu').classList.remove('hidden');
-            } else {
-                document.getElementById('back-to-editor').classList.remove('hidden');
-            }
-            
+            if(estApercu) document.getElementById('nav-aperçu').classList.remove('hidden');
+            else document.getElementById('back-to-editor').classList.remove('hidden');
             document.getElementById('pub-titre').innerText = data.titre;
             document.getElementById('pub-desc').innerText = data.description;
             document.getElementById('pub-badge').innerText = data.type_don;
             document.getElementById('pub-organisateur').innerText = `Proposé par ${data.organisateur_nom || 'un membre'}`;
-            
             const grid = document.getElementById('pub-grid');
             grid.innerHTML = '';
-            
             data.projets.forEach(p => {
                 const cleanUrl = p.url.trim();
                 const screenshotUrl = `https://api.microlink.io/?url=${encodeURIComponent(cleanUrl)}&screenshot=true&embed=screenshot.url`;
-                
                 grid.innerHTML += `
                     <div class="card-gradient p-6 rounded-[2.5rem] shadow-sm border border-emerald-50 flex flex-col animate-fade-in">
                         <div class="w-full h-44 bg-gray-200 rounded-3xl mb-4 overflow-hidden border flex items-center justify-center">
-                            <img src="${screenshotUrl}" 
-                                 class="w-full h-full object-cover opacity-0 transition-opacity duration-500" 
-                                 onload="this.style.opacity='1'"
-                                 onerror="this.src='https://placehold.co/600x400/065f46/ffffff?text=Sadaqa+Impact'">
+                            <img src="${screenshotUrl}" class="w-full h-full object-cover opacity-0 transition-opacity duration-500" onload="this.style.opacity='1'" onerror="this.src='https://placehold.co/600x400/065f46/ffffff?text=Sadaqa+Impact'">
                         </div>
                         <a href="${cleanUrl}" target="_blank" class="w-full py-4 mb-4 bg-emerald-600 text-white rounded-2xl text-center font-bold shadow-md hover:bg-emerald-700 transition-all">Participer</a>
                         <h3 class="text-xl font-bold text-gray-800 leading-tight line-clamp-2 h-[3rem] flex items-center">${p.nom}</h3>
@@ -324,7 +274,6 @@
             });
         }
 
-        // --- INITIALISATION ---
         function ajouterLigne(nom = '', url = '') {
             const div = document.createElement('div');
             div.className = "action-item flex flex-col gap-2 p-5 bg-gray-50 rounded-[1.5rem] border border-dashed border-gray-300 animate-fade-in";
@@ -338,22 +287,13 @@
         async function checkSession() {
             const urlParams = new URLSearchParams(window.location.search);
             const listId = urlParams.get('list');
-            
-            if (listId) {
-                chargerVuePublique(listId);
-            } else {
+            if (listId) chargerVuePublique(listId);
+            else {
                 const { data: { session } } = await _supabase.auth.getSession();
-                if (session) {
-                    currentUserId = session.user.id;
-                    document.getElementById('user-welcome').innerText = `${session.user.email}`;
-                    retourDashboard();
-                } else {
-                    cacherToutesVues();
-                    document.getElementById('vue-login').classList.remove('hidden');
-                }
+                if (session) { currentUserId = session.user.id; document.getElementById('user-welcome').innerText = `${session.user.email}`; retourDashboard(); }
+                else { cacherToutesVues(); document.getElementById('vue-login').classList.remove('hidden'); }
             }
         }
-
         window.onload = checkSession;
     </script>
 </body>
