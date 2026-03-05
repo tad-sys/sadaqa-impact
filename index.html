@@ -103,12 +103,14 @@
     </div>
 
     <div id="app-public" class="hidden bg-white min-h-screen">
-        <nav id="nav-aperçu" class="hidden border-b p-4 sticky top-0 bg-white/80 backdrop-blur-md z-50">
+        <nav id="nav-aperçu" class="hidden border-b p-4 sticky top-0 bg-emerald-600 text-white z-50">
              <div class="max-w-5xl mx-auto flex justify-between items-center">
-                <button onclick="retourDashboard()" class="text-emerald-600 font-bold">← Revenir à mes listes</button>
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Mode Aperçu</span>
+                <button onclick="retourDashboard()" class="font-bold">← Quitter l'aperçu</button>
+                <span class="text-sm font-bold opacity-80 uppercase tracking-widest">Aperçu de votre liste</span>
+                <button onclick="window.scrollTo(0,0)" class="text-xs bg-white/20 px-3 py-1 rounded-lg font-bold">Haut de page</button>
             </div>
         </nav>
+
         <main class="max-w-5xl mx-auto p-6 space-y-12 py-16">
             <div class="text-center space-y-4 animate-fade-in">
                 <span id="pub-badge" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-emerald-100 text-emerald-800 border border-emerald-200"></span>
@@ -134,7 +136,9 @@
 
         // --- NAVIGATION ---
         function cacherToutesVues() {
-            ['vue-login', 'app-dashboard', 'app-editor', 'app-public'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['vue-login', 'app-dashboard', 'app-editor', 'app-public'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
             document.getElementById('nav-aperçu').classList.add('hidden');
         }
 
@@ -178,7 +182,7 @@
                 password: document.getElementById('login-password').value,
                 options: { data: { first_name: document.getElementById('reg-prenom').value } }
             });
-            if (error) alert(error.message); else alert("Compte créé ! Vérifiez vos emails.");
+            if (error) alert(error.message); else alert("Compte créé !");
         }
 
         function handleLogout() { _supabase.auth.signOut().then(() => location.reload()); }
@@ -190,18 +194,6 @@
             document.getElementById('btn-auth-primary').onclick = isLogin ? handleSignup : handleLogin;
         }
 
-        async function handleForgotPassword() {
-            const email = document.getElementById('login-email').value;
-            if (!email) return alert("Saisissez votre email.");
-            const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
-            if (error) alert(error.message); else alert("Lien envoyé !");
-        }
-
-        async function updatePassword() {
-            const { error } = await _supabase.auth.updateUser({ password: document.getElementById('new-password').value });
-            if (error) alert(error.message); else { alert("Réussi !"); window.location.hash = ""; location.reload(); }
-        }
-
         // --- GESTION DES LISTES ---
         async function chargerMesListes() {
             const { data } = await _supabase.from('listes_dons').select('*').eq('user_id', currentUserId).order('created_at', { ascending: false });
@@ -210,16 +202,24 @@
             
             data.forEach(liste => {
                 const div = document.createElement('div');
-                div.className = "bg-white p-7 rounded-[2.5rem] shadow-sm border border-gray-100 animate-fade-in flex flex-col justify-between";
+                div.className = "bg-white p-7 rounded-[2.5rem] shadow-sm border border-gray-100 animate-fade-in flex flex-col";
                 div.innerHTML = `
-                    <div>
-                        <h3 class="font-bold text-xl mb-1 line-clamp-2">${liste.titre || 'Ma Collecte'}</h3>
-                        <p class="text-emerald-600 text-[10px] font-black uppercase tracking-widest mb-4">${liste.type_don}</p>
+                    <div class="mb-6">
+                        <h3 class="font-bold text-xl mb-1 line-clamp-2">${liste.titre || 'Sans titre'}</h3>
+                        <p class="text-emerald-600 text-[10px] font-black uppercase tracking-widest">${liste.type_don}</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 mt-4">
-                        <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="bg-gray-50 py-3 rounded-2xl text-xs font-bold hover:bg-gray-100 transition-colors">Modifier</button>
-                        <button onclick='chargerVuePublique("${liste.id}", true)' class="bg-blue-50 text-blue-700 py-3 rounded-2xl text-xs font-bold hover:bg-blue-100 transition-colors">Aperçu</button>
-                        <button onclick='copierLien("${liste.id}")' class="col-span-2 bg-emerald-50 text-emerald-700 py-3 rounded-2xl text-xs font-bold hover:bg-emerald-100 transition-colors">Copier le lien de partage</button>
+                    <div class="flex flex-col gap-2">
+                        <button onclick='chargerVuePublique("${liste.id}", true)' class="w-full bg-blue-600 text-white py-3 rounded-2xl text-xs font-bold hover:bg-blue-700 shadow-md">
+                            👁️ Voir l'aperçu
+                        </button>
+                        <div class="flex gap-2">
+                            <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="flex-1 bg-gray-100 py-3 rounded-2xl text-xs font-bold hover:bg-gray-200">
+                                ⚙️ Modifier
+                            </button>
+                            <button onclick='copierLien("${liste.id}")' class="flex-1 bg-emerald-50 text-emerald-700 py-3 rounded-2xl text-xs font-bold hover:bg-emerald-100">
+                                🔗 Partager
+                            </button>
+                        </div>
                     </div>
                 `;
                 container.appendChild(div);
@@ -254,17 +254,22 @@
         function copierLien(id) {
             const url = `${window.location.origin}${window.location.pathname}?list=${id}`;
             navigator.clipboard.writeText(url);
-            alert("Lien de partage copié dans le presse-papier !");
+            alert("Lien de partage copié !");
         }
 
-        // --- VUE PUBLIQUE / APERÇU (AVEC IMAGES) ---
+        // --- VUE PUBLIQUE / APERÇU (IMAGES INCLUSES) ---
         async function chargerVuePublique(id, estApercu = false) {
             const { data } = await _supabase.from('listes_dons').select('*').eq('id', id).single();
-            if (!data) return alert("Liste introuvable.");
+            if (!data) return;
             
             cacherToutesVues();
             document.getElementById('app-public').classList.remove('hidden');
-            if(estApercu) document.getElementById('nav-aperçu').classList.remove('hidden');
+            
+            if(estApercu) {
+                document.getElementById('nav-aperçu').classList.remove('hidden');
+            } else {
+                document.getElementById('back-to-editor').classList.remove('hidden');
+            }
             
             document.getElementById('pub-titre').innerText = data.titre;
             document.getElementById('pub-desc').innerText = data.description;
@@ -291,11 +296,9 @@
                         <p class="text-[10px] text-emerald-600 font-black uppercase tracking-tighter mt-1">${data.type_don}</p>
                     </div>`;
             });
-
-            if(!estApercu) document.getElementById('back-to-editor').classList.remove('hidden');
         }
 
-        // --- INITIALISATION & SESSION ---
+        // --- INITIALISATION ---
         function ajouterLigne(nom = '', url = '') {
             const div = document.createElement('div');
             div.className = "action-item flex flex-col gap-2 p-5 bg-gray-50 rounded-[1.5rem] border border-dashed border-gray-300 animate-fade-in";
@@ -312,12 +315,6 @@
             
             if (listId) {
                 chargerVuePublique(listId);
-            } else if (window.location.hash.includes("type=recovery")) {
-                cacherToutesVues();
-                document.getElementById('vue-login').classList.remove('hidden');
-                document.getElementById('standard-auth-fields').classList.add('hidden');
-                document.getElementById('auth-buttons').classList.add('hidden');
-                document.getElementById('reset-password-fields').classList.remove('hidden');
             } else {
                 const { data: { session } } = await _supabase.auth.getSession();
                 if (session) {
