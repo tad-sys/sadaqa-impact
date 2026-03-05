@@ -103,6 +103,12 @@
     </div>
 
     <div id="app-public" class="hidden bg-white min-h-screen">
+        <nav id="nav-aperçu" class="hidden border-b p-4 sticky top-0 bg-white/80 backdrop-blur-md z-50">
+             <div class="max-w-5xl mx-auto flex justify-between items-center">
+                <button onclick="retourDashboard()" class="text-emerald-600 font-bold">← Revenir à mes listes</button>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Mode Aperçu</span>
+            </div>
+        </nav>
         <main class="max-w-5xl mx-auto p-6 space-y-12 py-16">
             <div class="text-center space-y-4 animate-fade-in">
                 <span id="pub-badge" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-emerald-100 text-emerald-800 border border-emerald-200"></span>
@@ -129,6 +135,7 @@
         // --- NAVIGATION ---
         function cacherToutesVues() {
             ['vue-login', 'app-dashboard', 'app-editor', 'app-public'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById('nav-aperçu').classList.add('hidden');
         }
 
         function retourDashboard() {
@@ -209,9 +216,10 @@
                         <h3 class="font-bold text-xl mb-1 line-clamp-2">${liste.titre || 'Ma Collecte'}</h3>
                         <p class="text-emerald-600 text-[10px] font-black uppercase tracking-widest mb-4">${liste.type_don}</p>
                     </div>
-                    <div class="flex gap-2 mt-4">
-                        <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="flex-1 bg-gray-50 py-3 rounded-2xl text-xs font-bold hover:bg-gray-100 transition-colors">Modifier</button>
-                        <button onclick='copierLien("${liste.id}")' class="flex-1 bg-emerald-50 text-emerald-700 py-3 rounded-2xl text-xs font-bold hover:bg-emerald-100 transition-colors">Partager</button>
+                    <div class="grid grid-cols-2 gap-2 mt-4">
+                        <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="bg-gray-50 py-3 rounded-2xl text-xs font-bold hover:bg-gray-100 transition-colors">Modifier</button>
+                        <button onclick='chargerVuePublique("${liste.id}", true)' class="bg-blue-50 text-blue-700 py-3 rounded-2xl text-xs font-bold hover:bg-blue-100 transition-colors">Aperçu</button>
+                        <button onclick='copierLien("${liste.id}")' class="col-span-2 bg-emerald-50 text-emerald-700 py-3 rounded-2xl text-xs font-bold hover:bg-emerald-100 transition-colors">Copier le lien de partage</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -249,13 +257,15 @@
             alert("Lien de partage copié dans le presse-papier !");
         }
 
-        // --- VUE PUBLIQUE (AVEC IMAGES) ---
-        async function chargerVuePublique(id) {
+        // --- VUE PUBLIQUE / APERÇU (AVEC IMAGES) ---
+        async function chargerVuePublique(id, estApercu = false) {
             const { data } = await _supabase.from('listes_dons').select('*').eq('id', id).single();
             if (!data) return alert("Liste introuvable.");
             
             cacherToutesVues();
             document.getElementById('app-public').classList.remove('hidden');
+            if(estApercu) document.getElementById('nav-aperçu').classList.remove('hidden');
+            
             document.getElementById('pub-titre').innerText = data.titre;
             document.getElementById('pub-desc').innerText = data.description;
             document.getElementById('pub-badge').innerText = data.type_don;
@@ -281,7 +291,8 @@
                         <p class="text-[10px] text-emerald-600 font-black uppercase tracking-tighter mt-1">${data.type_don}</p>
                     </div>`;
             });
-            document.getElementById('back-to-editor').classList.remove('hidden');
+
+            if(!estApercu) document.getElementById('back-to-editor').classList.remove('hidden');
         }
 
         // --- INITIALISATION & SESSION ---
