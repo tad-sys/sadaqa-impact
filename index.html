@@ -104,13 +104,13 @@
                 </div>
 
                 <div id="catalogue-idees" class="hidden bg-blue-50 p-6 rounded-[2rem] border border-blue-100 animate-fade-in grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                    <p class="col-span-full text-xs font-bold text-blue-800 uppercase mb-2">Actions directes :</p>
-                    <button onclick="ajouterIdee('Faire un don pour un Puits', 'https://www.helloasso.com/associations/human-appeal-france/formulaires/15/don')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">💧 Construire un Puits</button>
-                    <button onclick="ajouterIdee('Parrainer un Orphelin', 'https://www.helloasso.com/associations/secours-islamique-france/formulaires/24/don')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🧒 Parrainage Orphelin</button>
-                    <button onclick="ajouterIdee('Donner un Colis Alimentaire', 'https://www.helloasso.com/associations/secours-islamique-france/formulaires/38/don')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🍲 Colis Alimentaire</button>
-                    <button onclick="ajouterIdee('Planter un Olivier', 'https://www.helloasso.com/associations/human-appeal-france/formulaires/6/don')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🌳 Plantation d'Arbres</button>
-                    <button onclick="ajouterIdee('Soutenir une Mosquée', 'https://www.helloasso.com/associations/centre-islamique-et-culturel-de-clichy-sous-bois/formulaires/1/don')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">Mosquées</button>
-                    <button onclick="ajouterIdee('Aide Médicale Urgente', 'https://www.helloasso.com/associations/secours-islamique-france/formulaires/1/don')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🚑 Soins & Santé</button>
+                    <p class="col-span-full text-xs font-bold text-blue-800 uppercase mb-2">Actions directes vérifiées :</p>
+                    <button onclick="ajouterIdee('Construire un Puits d\'eau', 'https://www.helloasso.com/associations/human-appeal-france/formulaires/15')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">💧 Puits d'eau</button>
+                    <button onclick="ajouterIdee('Parrainage d\'Orphelins', 'https://www.helloasso.com/associations/secours-islamique-france/formulaires/24')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🧒 Orphelins</button>
+                    <button onclick="ajouterIdee('Aide Alimentaire / Colis', 'https://www.helloasso.com/associations/secours-islamique-france/formulaires/38')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🍲 Colis Alimentaire</button>
+                    <button onclick="ajouterIdee('Plantation d\'oliviers', 'https://www.helloasso.com/associations/human-appeal-france/formulaires/6')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🌳 Plantation d'Arbres</button>
+                    <button onclick="ajouterIdee('Soutien Mosquée', 'https://www.helloasso.com/associations/centre-islamique-et-culturel-de-clichy-sous-bois/formulaires/1')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🕌 Mosquées</button>
+                    <button onclick="ajouterIdee('Soins Médicaux Urgents', 'https://www.helloasso.com/associations/secours-islamique-france/formulaires/1')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🚑 Santé & Soins</button>
                 </div>
             </div>
         </main>
@@ -207,10 +207,12 @@
             document.getElementById('btn-auth-primary').onclick = isLogin ? handleSignup : handleLogin;
         }
 
+        // --- NOUVELLE FONCTION : SUPPRESSION ---
         async function supprimerListe(id) {
-            if(!confirm("Êtes-vous sûr de vouloir supprimer cette liste ?")) return;
+            if (!confirm("Voulez-vous vraiment supprimer cette liste ?")) return;
             const { error } = await _supabase.from('listes_dons').delete().eq('id', id);
-            if(error) alert(error.message); else chargerMesListes();
+            if (error) alert("Erreur lors de la suppression : " + error.message);
+            else chargerMesListes();
         }
 
         async function chargerMesListes() {
@@ -219,17 +221,12 @@
             container.innerHTML = '';
             data.forEach(liste => {
                 const div = document.createElement('div');
-                div.className = "bg-white p-7 rounded-[2.5rem] shadow-sm border border-gray-100 animate-fade-in flex flex-col";
+                div.className = "bg-white p-7 rounded-[2.5rem] shadow-sm border border-gray-100 animate-fade-in flex flex-col relative";
                 div.innerHTML = `
-                    <div class="mb-6 flex justify-between items-start">
-                        <div class="flex-1">
-                            <h3 class="font-bold text-xl mb-1 line-clamp-2">${liste.titre || 'Sans titre'}</h3>
-                            <p class="text-emerald-600 text-[10px] font-black uppercase tracking-widest">${liste.type_don}</p>
-                        </div>
-                        <button onclick='supprimerListe("${liste.id}")' class="text-red-400 hover:text-red-600 p-1">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
-                    </div>
+                    <button onclick='supprimerListe("${liste.id}")' class="absolute top-4 right-4 text-red-400 hover:text-red-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </button>
+                    <div class="mb-6"><h3 class="font-bold text-xl mb-1 line-clamp-2 pr-6">${liste.titre || 'Sans titre'}</h3><p class="text-emerald-600 text-[10px] font-black uppercase tracking-widest">${liste.type_don}</p></div>
                     <div class="flex flex-col gap-2">
                         <button onclick='chargerVuePublique("${liste.id}", true)' class="w-full bg-blue-600 text-white py-3 rounded-2xl text-xs font-bold hover:bg-blue-700 shadow-md">👁️ Voir l'aperçu</button>
                         <div class="flex gap-2">
@@ -312,3 +309,5 @@
     </script>
 </body>
 </html>
+</html>
+
