@@ -33,16 +33,27 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Adresse email</label>
-                    <input type="email" id="login-email" placeholder="nom@exemple.com" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Mot de passe</label>
-                    <input type="password" id="login-password" placeholder="••••••••" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                <div id="standard-auth-fields" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Adresse email</label>
+                        <input type="email" id="login-email" placeholder="nom@exemple.com" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm font-semibold text-gray-700">Mot de passe</label>
+                            <button onclick="handleForgotPassword()" class="text-xs text-emerald-600 hover:underline">Mot de passe oublié ?</button>
+                        </div>
+                        <input type="password" id="login-password" placeholder="••••••••" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
                 </div>
 
-                <div class="flex flex-col gap-3 mt-4">
+                <div id="reset-password-fields" class="hidden space-y-4 border-t pt-4">
+                    <p class="text-sm font-medium text-emerald-800">Saisissez votre nouveau mot de passe :</p>
+                    <input type="password" id="new-password" placeholder="Nouveau mot de passe" class="w-full p-4 border border-emerald-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                    <button onclick="updatePassword()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg">Mettre à jour le mot de passe</button>
+                </div>
+
+                <div id="auth-buttons" class="flex flex-col gap-3 mt-4">
                     <button id="btn-auth-primary" onclick="handleLogin()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 shadow-lg transition-all">
                         Se connecter
                     </button>
@@ -115,12 +126,13 @@
     </div>
 
     <script>
-        // CONFIGURATION FIXE
         const SUPABASE_URL = "https://qrtfsakvzlkjqueurvci.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFydGZzYWt2emxranF1ZXVydmNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MDM5MDksImV4cCI6MjA4ODI3OTkwOX0.muCLFvI4h8p8jmjOgrRNKuqkLlD2Xbx9jxZKsSjMB4g";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let isLoginMode = true;
+
+        // --- AUTHENTIFICATION ---
 
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
@@ -136,12 +148,10 @@
             const password = document.getElementById('login-password').value;
             const prenom = document.getElementById('reg-prenom').value;
             const nom = document.getElementById('reg-nom').value;
-
             const { error } = await _supabase.auth.signUp({
                 email, password,
                 options: { data: { first_name: prenom, last_name: nom } }
             });
-
             if (error) alert(error.message);
             else alert("Inscription réussie ! Vérifiez vos emails.");
         }
@@ -154,6 +164,30 @@
             else showApp(data.user);
         }
 
+        async function handleForgotPassword() {
+            const email = document.getElementById('login-email').value;
+            if (!email) return alert("Veuillez saisir votre email pour recevoir le lien.");
+            const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.href,
+            });
+            if (error) alert(error.message);
+            else alert("Lien de réinitialisation envoyé !");
+        }
+
+        async function updatePassword() {
+            const newPassword = document.getElementById('new-password').value;
+            if (newPassword.length < 6) return alert("Le mot de passe doit faire 6 caractères minimum.");
+            const { error } = await _supabase.auth.updateUser({ password: newPassword });
+            if (error) alert(error.message);
+            else {
+                alert("Mot de passe mis à jour !");
+                window.location.hash = "";
+                location.reload();
+            }
+        }
+
+        // --- LOGIQUE BASE DE DONNÉES ---
+
         async function sauvegarderListe() {
             const projects = [];
             document.querySelectorAll('.action-item').forEach(item => {
@@ -161,9 +195,7 @@
                 const url = item.querySelector('.action-url').value;
                 if(nom && url) projects.push({ nom, url });
             });
-
             const { data: { user } } = await _supabase.auth.getUser();
-            
             const { error } = await _supabase.from('listes_dons').upsert([{
                 user_id: user.id,
                 organisateur_nom: `${user.user_metadata.first_name || ''} ${user.user_metadata.last_name || ''}`,
@@ -172,7 +204,6 @@
                 type_don: document.getElementById('input-type').value,
                 projets: projects
             }], { onConflict: 'user_id' });
-
             if (error) alert("Erreur : " + error.message);
             else alert("Sauvegarde réussie !");
         }
@@ -181,7 +212,6 @@
             const { data } = await _supabase.from('listes_dons').select('*').eq('user_id', userId).single();
             const container = document.getElementById('liste-actions');
             container.innerHTML = '';
-            
             if (data) {
                 document.getElementById('input-titre').value = data.titre || '';
                 document.getElementById('input-desc').value = data.description || '';
@@ -204,9 +234,19 @@
         function handleLogout() { _supabase.auth.signOut(); location.reload(); }
 
         window.onload = async () => {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) showApp(session.user);
+            // Détection du mode récupération de mot de passe
+            if (window.location.hash.includes("type=recovery")) {
+                document.getElementById('auth-title').innerText = "Nouveau mot de passe";
+                document.getElementById('standard-auth-fields').classList.add('hidden');
+                document.getElementById('auth-buttons').classList.add('hidden');
+                document.getElementById('reset-password-fields').classList.remove('hidden');
+            } else {
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (session) showApp(session.user);
+            }
         };
+
+        // --- INTERFACE ---
 
         function ajouterLigne(nom = '', url = '') {
             const container = document.getElementById('liste-actions');
