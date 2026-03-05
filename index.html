@@ -11,33 +11,38 @@
         .animate-fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        /* Optimisation Mobile pour éviter les déformations */
+        @media (max-width: 640px) {
+            .input-responsive { font-size: 16px !important; } /* Évite le zoom auto sur iOS */
+            .container-p { padding-left: 1.5rem; padding-right: 1.5rem; }
+        }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans text-gray-900">
+<body class="bg-gray-50 min-h-screen font-sans text-gray-900 overflow-x-hidden">
 
     <section id="vue-login" class="min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-md w-full bg-white rounded-[2.5rem] shadow-xl p-10 animate-fade-in border border-emerald-50 text-center">
+        <div class="max-w-md w-full bg-white rounded-[2.5rem] shadow-xl p-8 sm:p-10 animate-fade-in border border-emerald-50 text-center">
             <div class="text-4xl mb-4">🌙</div>
-            <h1 class="text-3xl font-extrabold text-emerald-800 mb-2">Sadaqa Impact</h1>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-emerald-800 mb-2">Sadaqa Impact</h1>
             <p id="auth-title" class="text-gray-500 mb-8 font-medium">Gérez vos collectes de dons</p>
             
             <div class="space-y-4 text-left">
-                <div id="register-fields" class="hidden grid grid-cols-2 gap-4">
-                    <input type="text" id="reg-prenom" placeholder="Prénom" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
-                    <input type="text" id="reg-nom" placeholder="Nom" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                <div id="register-fields" class="hidden grid grid-cols-2 gap-3">
+                    <input type="text" id="reg-prenom" placeholder="Prénom" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="text" id="reg-nom" placeholder="Nom" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
 
                 <div id="standard-auth-fields" class="space-y-4">
-                    <input type="email" id="login-email" placeholder="Email" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="email" id="login-email" placeholder="Email" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
                     <div class="relative">
-                        <input type="password" id="login-password" placeholder="Mot de passe" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                        <input type="password" id="login-password" placeholder="Mot de passe" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
                         <button onclick="handleForgotPassword()" class="absolute right-4 top-4 text-xs text-emerald-600 font-bold">Oublié ?</button>
                     </div>
                 </div>
 
                 <div id="reset-password-fields" class="hidden space-y-4 border-t pt-4">
                     <p class="text-sm font-medium text-emerald-800">Nouveau mot de passe :</p>
-                    <input type="password" id="new-password" placeholder="6 caractères min." class="w-full p-4 border border-emerald-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="password" id="new-password" placeholder="6 caractères min." class="input-responsive w-full p-4 border border-emerald-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
                     <button onclick="updatePassword()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg">Mettre à jour</button>
                 </div>
 
@@ -50,93 +55,84 @@
     </section>
 
     <div id="app-dashboard" class="hidden">
-        <nav class="bg-white border-b p-4 mb-8 sticky top-0 z-50">
+        <nav class="bg-white border-b p-4 mb-6 sm:mb-8 sticky top-0 z-50">
             <div class="max-w-5xl mx-auto flex justify-between items-center">
-                <h1 class="text-xl font-bold text-emerald-700 flex items-center gap-2">🌙 Sadaqa Impact</h1>
-                <button onclick="handleLogout()" class="text-sm font-bold text-red-500 bg-red-50 px-4 py-2 rounded-xl hover:bg-red-100 transition-colors">Déconnexion</button>
+                <h1 class="text-lg sm:text-xl font-bold text-emerald-700 flex items-center gap-2">🌙 Sadaqa Impact</h1>
+                <button onclick="handleLogout()" class="text-xs font-bold text-red-500 bg-red-50 px-3 py-2 rounded-xl hover:bg-red-100">Déconnexion</button>
             </div>
         </nav>
 
-        <main class="max-w-5xl mx-auto px-4">
-            <div class="flex justify-between items-center mb-8">
+        <main class="max-w-5xl mx-auto px-4 pb-10">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
                 <div>
-                    <h2 class="text-3xl font-black text-gray-800 tracking-tight">Mes Listes</h2>
-                    <p id="user-welcome" class="text-gray-500 text-sm font-medium"></p>
+                    <h2 class="text-2xl sm:text-3xl font-black text-gray-800 tracking-tight">Mes Listes</h2>
+                    <p id="user-welcome" class="text-gray-500 text-xs sm:text-sm font-medium"></p>
                 </div>
-                <button onclick="ouvrirEditeur()" class="bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:scale-105 transition-all">
+                <button onclick="ouvrirEditeur()" class="w-full sm:w-auto bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold shadow-lg hover:scale-105 transition-all text-center">
                     + Nouvelle liste
                 </button>
             </div>
 
-            <div id="container-listes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div id="container-listes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div>
         </main>
     </div>
 
     <div id="app-editor" class="hidden min-h-screen bg-white">
         <nav class="border-b p-4 sticky top-0 bg-white z-50">
             <div class="max-w-5xl mx-auto flex justify-between items-center">
-                <button onclick="retourDashboard()" class="text-gray-400 font-bold hover:text-gray-600 transition-colors">← Retour</button>
-                <button onclick="sauvegarderListe()" class="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold shadow-md hover:bg-emerald-700 transition-all">Enregistrer la liste</button>
+                <button onclick="retourDashboard()" class="text-gray-400 font-bold text-sm sm:text-base">← Retour</button>
+                <button onclick="sauvegarderListe()" class="bg-emerald-600 text-white px-4 sm:px-6 py-2 rounded-xl font-bold shadow-md text-sm">Enregistrer</button>
             </div>
         </nav>
 
-        <main class="max-w-3xl mx-auto p-6 space-y-8">
+        <main class="max-w-3xl mx-auto p-4 sm:p-6 space-y-6 sm:space-y-8">
             <input type="hidden" id="edit-id">
             <div class="space-y-4">
-                <input type="text" id="input-titre" placeholder="Titre de la collecte" class="text-3xl font-bold w-full outline-none border-b focus:border-emerald-500 pb-2">
-                <select id="input-type" class="w-full p-4 bg-emerald-50 rounded-2xl text-emerald-800 font-bold outline-none border-none cursor-pointer">
+                <input type="text" id="input-titre" placeholder="Titre de la collecte" class="input-responsive text-2xl sm:text-3xl font-bold w-full outline-none border-b focus:border-emerald-500 pb-2">
+                <select id="input-type" class="w-full p-4 bg-emerald-50 rounded-2xl text-emerald-800 font-bold outline-none border-none cursor-pointer text-sm sm:text-base">
                     <option value="Sadaqa Jariya">Sadaqa Jariya</option>
                     <option value="Zakat Al Maal">Zakat Al Maal</option>
                     <option value="Zakat Al Fitr">Zakat Al Fitr</option>
                     <option value="Sadaqa">Sadaqa</option>
                     <option value="Autre">Autre</option>
                 </select>
-                <textarea id="input-desc" placeholder="Message aux donateurs..." class="w-full p-5 bg-gray-50 rounded-[2rem] outline-none border-none focus:ring-2 focus:ring-emerald-100" rows="4"></textarea>
+                <textarea id="input-desc" placeholder="Message aux donateurs..." class="input-responsive w-full p-4 sm:p-5 bg-gray-50 rounded-[1.5rem] sm:rounded-[2rem] outline-none border-none focus:ring-2 focus:ring-emerald-100" rows="4"></textarea>
             </div>
 
             <div class="space-y-4">
                 <h3 class="font-bold text-lg text-gray-800">Actions de dons</h3>
-                <div id="liste-actions" class="space-y-4"></div>
+                <div id="liste-actions" class="space-y-3 sm:space-y-4"></div>
                 
-                <div class="flex flex-wrap gap-4 mt-4">
-                    <button onclick="ajouterLigne()" class="text-emerald-600 font-bold hover:text-emerald-700 transition-colors">+ Personnalisé</button>
-                    <button onclick="toggleCatalogue()" class="text-blue-600 font-bold hover:text-blue-700 transition-colors">💡 Catalogue d'idées</button>
-                </div>
-
-                <div id="catalogue-idees" class="hidden bg-blue-50 p-6 rounded-[2rem] border border-blue-100 animate-fade-in grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                    <p class="col-span-full text-xs font-bold text-blue-800 uppercase mb-2">Actions Directes (Paiement) :</p>
-                    <button onclick="ajouterIdee('Construire un Puits d\'eau', 'https://www.helloasso.com/associations/secours-islamique-france/formulaires/15/widget')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">💧 Puits d'eau (SIF)</button>
-                    <button onclick="ajouterIdee('Parrainer un Orphelin', 'https://www.helloasso.com/associations/human-appeal-france/formulaires/1/widget')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🧒 Orphelin (Human Appeal)</button>
-                    <button onclick="ajouterIdee('Donner un Colis Alimentaire', 'https://www.helloasso.com/associations/secours-islamique-france/formulaires/38/widget')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🍲 Colis Alimentaire (SIF)</button>
-                    <button onclick="ajouterIdee('Planter un Arbre Fruitier', 'https://www.helloasso.com/associations/life/formulaires/11/widget')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🌳 Plantation (LIFE)</button>
-                    <button onclick="ajouterIdee('Soutien à la Mosquée locale', 'https://www.helloasso.com/associations/centre-islamique-et-culturel-de-clichy-sous-bois/formulaires/1/widget')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🕌 Mosquées</button>
-                    <button onclick="ajouterIdee('Urgence Santé / Soins', 'https://www.helloasso.com/associations/uossm-france/formulaires/2/widget')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🚑 Santé Urgence</button>
+                <div class="flex mt-4">
+                    <button onclick="ajouterLigne()" class="w-full py-4 border-2 border-dashed border-emerald-200 text-emerald-600 font-bold rounded-2xl hover:bg-emerald-50 transition-colors">
+                        + Ajouter une action
+                    </button>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="app-public" class="hidden bg-white min-h-screen">
+    <div id="app-public" class="hidden bg-white min-h-screen overflow-x-hidden">
         <nav id="nav-aperçu" class="hidden border-b p-4 sticky top-0 bg-emerald-600 text-white z-50">
-             <div class="max-w-5xl mx-auto flex justify-between items-center">
-                <button onclick="retourDashboard()" class="font-bold">← Quitter l'aperçu</button>
-                <span class="text-sm font-bold opacity-80 uppercase tracking-widest">Aperçu de votre liste</span>
-                <button onclick="window.scrollTo(0,0)" class="text-xs bg-white/20 px-3 py-1 rounded-lg font-bold">Haut de page</button>
+             <div class="max-w-5xl mx-auto flex justify-between items-center gap-2">
+                <button onclick="retourDashboard()" class="font-bold text-xs sm:text-sm">← Quitter</button>
+                <span class="text-[10px] sm:text-sm font-bold opacity-80 uppercase tracking-widest text-center">Aperçu</span>
+                <button onclick="window.scrollTo(0,0)" class="text-[10px] bg-white/20 px-2 py-1 rounded-lg font-bold">Haut</button>
             </div>
         </nav>
 
-        <main class="max-w-5xl mx-auto p-6 space-y-12 py-16">
+        <main class="max-w-5xl mx-auto p-4 sm:p-6 space-y-8 sm:space-y-12 py-10 sm:py-16">
             <div class="text-center space-y-4 animate-fade-in">
-                <span id="pub-badge" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-emerald-100 text-emerald-800 border border-emerald-200"></span>
-                <h1 id="pub-titre" class="text-4xl font-extrabold text-gray-900 tracking-tight"></h1>
-                <p id="pub-desc" class="max-w-2xl mx-auto text-lg text-gray-600 leading-relaxed"></p>
-                <p id="pub-organisateur" class="text-sm text-gray-400 italic"></p>
+                <span id="pub-badge" class="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-emerald-100 text-emerald-800 border border-emerald-200"></span>
+                <h1 id="pub-titre" class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight px-2"></h1>
+                <p id="pub-desc" class="max-w-2xl mx-auto text-base sm:text-lg text-gray-600 leading-relaxed"></p>
+                <p id="pub-organisateur" class="text-xs text-gray-400 italic"></p>
             </div>
             
-            <div id="pub-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            <div id="pub-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"></div>
             
-            <div id="back-to-editor" class="hidden text-center mt-20 pt-8 border-t">
-                <button onclick="location.href=window.location.pathname" class="text-emerald-600 font-bold hover:underline">Créer ma propre liste sur Sadaqa Impact</button>
+            <div id="back-to-editor" class="hidden text-center mt-12 sm:mt-20 pt-8 border-t px-4">
+                <button onclick="location.href=window.location.pathname" class="text-emerald-600 text-sm font-bold hover:underline">Créer ma propre liste sur Sadaqa Impact</button>
             </div>
         </main>
     </div>
@@ -163,7 +159,6 @@
             cacherToutesVues();
             document.getElementById('app-editor').classList.remove('hidden');
             document.getElementById('liste-actions').innerHTML = '';
-            document.getElementById('catalogue-idees').classList.add('hidden');
             if (liste) {
                 document.getElementById('edit-id').value = liste.id;
                 document.getElementById('input-titre').value = liste.titre;
@@ -177,9 +172,6 @@
                 ajouterLigne();
             }
         }
-
-        function toggleCatalogue() { document.getElementById('catalogue-idees').classList.toggle('hidden'); }
-        function ajouterIdee(nom, url) { ajouterLigne(nom, url); }
 
         async function handleLogin() {
             const { data, error } = await _supabase.auth.signInWithPassword({
@@ -207,7 +199,6 @@
             document.getElementById('btn-auth-primary').onclick = isLogin ? handleSignup : handleLogin;
         }
 
-        // --- FONCTION SUPPRESSION ---
         async function supprimerListe(id) {
             if(!confirm("Supprimer cette liste définitivement ?")) return;
             const { error } = await _supabase.from('listes_dons').delete().eq('id', id);
@@ -220,17 +211,17 @@
             container.innerHTML = '';
             data.forEach(liste => {
                 const div = document.createElement('div');
-                div.className = "bg-white p-7 rounded-[2.5rem] shadow-sm border border-gray-100 animate-fade-in flex flex-col relative";
+                div.className = "bg-white p-6 sm:p-7 rounded-[2.5rem] shadow-sm border border-gray-100 animate-fade-in flex flex-col relative";
                 div.innerHTML = `
                     <button onclick='supprimerListe("${liste.id}")' class="absolute top-6 right-6 text-red-300 hover:text-red-600 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     </button>
                     <div class="mb-6"><h3 class="font-bold text-xl mb-1 line-clamp-2 pr-8">${liste.titre || 'Sans titre'}</h3><p class="text-emerald-600 text-[10px] font-black uppercase tracking-widest">${liste.type_don}</p></div>
                     <div class="flex flex-col gap-2">
-                        <button onclick='chargerVuePublique("${liste.id}", true)' class="w-full bg-blue-600 text-white py-3 rounded-2xl text-xs font-bold hover:bg-blue-700 shadow-md">👁️ Voir l'aperçu</button>
+                        <button onclick='chargerVuePublique("${liste.id}", true)' class="w-full bg-blue-600 text-white py-3.5 rounded-2xl text-xs font-bold hover:bg-blue-700 shadow-md">👁️ Voir l'aperçu</button>
                         <div class="flex gap-2">
-                            <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="flex-1 bg-gray-100 py-3 rounded-2xl text-xs font-bold hover:bg-gray-200">⚙️ Modifier</button>
-                            <button onclick='copierLien("${liste.id}")' class="flex-1 bg-emerald-50 text-emerald-700 py-3 rounded-2xl text-xs font-bold hover:bg-emerald-100">🔗 Partager</button>
+                            <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="flex-1 bg-gray-100 py-3 rounded-2xl text-xs font-bold">⚙️ Modifier</button>
+                            <button onclick='copierLien("${liste.id}")' class="flex-1 bg-emerald-50 text-emerald-700 py-3 rounded-2xl text-xs font-bold">🔗 Partager</button>
                         </div>
                     </div>`;
                 container.appendChild(div);
@@ -273,12 +264,12 @@
                 const cleanUrl = p.url.trim();
                 const screenshotUrl = `https://api.microlink.io/?url=${encodeURIComponent(cleanUrl)}&screenshot=true&embed=screenshot.url`;
                 grid.innerHTML += `
-                    <div class="card-gradient p-6 rounded-[2.5rem] shadow-sm border border-emerald-50 flex flex-col animate-fade-in">
-                        <div class="w-full h-44 bg-gray-200 rounded-3xl mb-4 overflow-hidden border flex items-center justify-center">
+                    <div class="card-gradient p-5 sm:p-6 rounded-[2.5rem] shadow-sm border border-emerald-50 flex flex-col animate-fade-in">
+                        <div class="w-full h-40 sm:h-44 bg-gray-200 rounded-3xl mb-4 overflow-hidden border flex items-center justify-center">
                             <img src="${screenshotUrl}" class="w-full h-full object-cover opacity-0 transition-opacity duration-500" onload="this.style.opacity='1'" onerror="this.src='https://placehold.co/600x400/065f46/ffffff?text=Sadaqa+Impact'">
                         </div>
                         <a href="${cleanUrl}" target="_blank" class="w-full py-4 mb-4 bg-emerald-600 text-white rounded-2xl text-center font-bold shadow-md hover:bg-emerald-700 transition-all">Participer</a>
-                        <h3 class="text-xl font-bold text-gray-800 leading-tight line-clamp-2 h-[3rem] flex items-center">${p.nom}</h3>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 leading-tight line-clamp-2 h-[3rem] flex items-center">${p.nom}</h3>
                         <p class="text-[10px] text-emerald-600 font-black uppercase tracking-tighter mt-1">${data.type_don}</p>
                     </div>`;
             });
@@ -286,10 +277,13 @@
 
         function ajouterLigne(nom = '', url = '') {
             const div = document.createElement('div');
-            div.className = "action-item flex flex-col gap-2 p-5 bg-gray-50 rounded-[1.5rem] border border-dashed border-gray-300 animate-fade-in";
+            div.className = "action-item flex flex-col gap-2 p-4 sm:p-5 bg-gray-50 rounded-[1.5rem] border border-dashed border-gray-300 animate-fade-in relative";
             div.innerHTML = `
-                <input type="text" placeholder="Nom du projet" class="action-nom w-full p-3 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" value="${nom}">
-                <input type="text" placeholder="Lien URL (ex: https://...)" class="action-url w-full p-3 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" value="${url}">
+                <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1 border shadow-sm">
+                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <input type="text" placeholder="Nom du projet" class="action-nom input-responsive w-full p-3 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" value="${nom}">
+                <input type="text" placeholder="Lien URL (ex: https://...)" class="action-url input-responsive w-full p-3 bg-white border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500" value="${url}">
             `;
             document.getElementById('liste-actions').appendChild(div);
         }
