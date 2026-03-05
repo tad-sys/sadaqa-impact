@@ -48,18 +48,14 @@
                 </div>
 
                 <div id="reset-password-fields" class="hidden space-y-4 border-t pt-4">
-                    <p class="text-sm font-medium text-emerald-800">Saisissez votre nouveau mot de passe :</p>
-                    <input type="password" id="new-password" placeholder="Nouveau mot de passe" class="w-full p-4 border border-emerald-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
-                    <button onclick="updatePassword()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg">Mettre à jour le mot de passe</button>
+                    <p class="text-sm font-medium text-emerald-800">Nouveau mot de passe :</p>
+                    <input type="password" id="new-password" placeholder="6 caractères min." class="w-full p-4 border border-emerald-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                    <button onclick="updatePassword()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg">Mettre à jour</button>
                 </div>
 
                 <div id="auth-buttons" class="flex flex-col gap-3 mt-4">
-                    <button id="btn-auth-primary" onclick="handleLogin()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 shadow-lg transition-all">
-                        Se connecter
-                    </button>
-                    <button id="btn-auth-secondary" onclick="toggleAuthMode()" class="w-full py-4 bg-white border-2 border-emerald-600 text-emerald-600 rounded-2xl font-bold hover:bg-emerald-50 transition-all">
-                        Créer un compte
-                    </button>
+                    <button id="btn-auth-primary" onclick="handleLogin()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 shadow-lg transition-all">Se connecter</button>
+                    <button id="btn-auth-secondary" onclick="toggleAuthMode()" class="w-full py-4 bg-white border-2 border-emerald-600 text-emerald-600 rounded-2xl font-bold hover:bg-emerald-50 transition-all">Créer un compte</button>
                 </div>
             </div>
         </div>
@@ -69,7 +65,7 @@
         <nav class="bg-white border-b p-4 mb-8 sticky top-0 z-50 shadow-sm">
             <div class="max-w-5xl mx-auto flex justify-between items-center">
                 <h1 class="text-xl font-bold text-emerald-700 flex items-center gap-2">🌙 Sadaqa Impact</h1>
-                <div class="flex gap-3 items-center">
+                <div class="flex gap-3 items-center" id="nav-controls">
                     <span id="user-welcome" class="hidden md:block text-sm font-medium text-gray-500 mr-2"></span>
                     <button onclick="toggleView()" id="btn-switch" class="bg-emerald-600 text-white px-6 py-2 rounded-xl text-sm font-bold shadow-md">Voir le résultat</button>
                     <button onclick="handleLogout()" class="p-2 text-red-500 hover:bg-red-50 rounded-lg">✕</button>
@@ -80,11 +76,12 @@
         <main class="max-w-5xl mx-auto px-4 pb-20">
             <section id="vue-createur" class="space-y-6">
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
-                    <div class="flex justify-between items-center mb-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                         <h2 class="text-2xl font-bold text-gray-800">Votre liste de dons</h2>
-                        <button onclick="sauvegarderListe()" class="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-200 transition-all">
-                            💾 Enregistrer ma liste
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="sauvegarderListe()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-700 transition-all">💾 Enregistrer</button>
+                            <button onclick="copierLienPartage()" class="bg-blue-50 text-blue-600 border border-blue-200 px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-100 transition-all">🔗 Partager le lien</button>
+                        </div>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -119,8 +116,12 @@
                     <span id="display-badge" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-emerald-100 text-emerald-800 border border-emerald-200"></span>
                     <h2 id="display-titre" class="text-4xl font-extrabold mt-6 text-gray-900 tracking-tight"></h2>
                     <p id="display-desc" class="max-w-2xl mx-auto mt-4 text-lg text-gray-600 leading-relaxed"></p>
+                    <p id="display-organisateur" class="mt-4 text-sm text-gray-400 font-medium italic"></p>
                 </div>
                 <div id="display-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+                <div id="back-to-editor" class="hidden text-center mt-12 pt-8 border-t">
+                    <button onclick="location.href=window.location.pathname" class="text-emerald-600 font-bold hover:underline">Créer ma propre liste Sadaqa Impact</button>
+                </div>
             </section>
         </main>
     </div>
@@ -132,14 +133,50 @@
 
         let isLoginMode = true;
 
-        // --- AUTHENTIFICATION ---
+        // --- GESTION DU MODE PUBLIC ---
+        async function chargerModePublic(userId) {
+            const { data, error } = await _supabase.from('listes_dons').select('*').eq('user_id', userId).single();
+            if (data) {
+                document.getElementById('vue-login').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                document.getElementById('vue-createur').classList.add('hidden');
+                document.getElementById('nav-controls').classList.add('hidden');
+                document.getElementById('vue-donateur').classList.remove('hidden');
+                document.getElementById('back-to-editor').classList.remove('hidden');
+                
+                // Remplissage des données
+                document.getElementById('display-titre').innerText = data.titre;
+                document.getElementById('display-desc').innerText = data.description;
+                document.getElementById('display-badge').innerText = data.type_don;
+                document.getElementById('display-organisateur').innerText = `Proposé par ${data.organisateur_nom}`;
+                
+                const grid = document.getElementById('display-grid');
+                grid.innerHTML = '';
+                data.projets.forEach(p => {
+                    const screenshotUrl = `https://api.microlink.io/?url=${encodeURIComponent(p.url)}&screenshot=true&embed=screenshot.url`;
+                    grid.innerHTML += `<div class="card-gradient p-6 rounded-3xl shadow-sm border border-emerald-50 flex flex-col animate-fade-in"><div class="w-full h-44 bg-gray-100 rounded-xl mb-4 overflow-hidden border"><img src="${screenshotUrl}" class="w-full h-full object-cover"></div><a href="${p.url}" target="_blank" class="w-full py-3 mb-4 bg-emerald-600 text-white rounded-xl text-center font-bold">Participer</a><h3 class="text-xl font-bold text-gray-800 leading-tight line-clamp-2 h-[3rem] flex items-center">${p.nom}</h3><p class="text-xs text-emerald-600 font-bold uppercase mt-1">${data.type_don}</p></div>`;
+                });
+            } else {
+                alert("Cette liste n'existe pas ou n'est plus disponible.");
+                location.href = window.location.pathname;
+            }
+        }
 
+        function copierLienPartage() {
+            _supabase.auth.getUser().then(({data: {user}}) => {
+                if(!user) return alert("Connectez-vous pour partager.");
+                const shareUrl = `${window.location.origin}${window.location.pathname}?id=${user.id}`;
+                navigator.clipboard.writeText(shareUrl);
+                alert("Lien de partage copié dans le presse-papier !");
+            });
+        }
+
+        // --- AUTHENTIFICATION ---
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
             document.getElementById('register-fields').classList.toggle('hidden');
-            document.getElementById('auth-title').innerText = isLoginMode ? "Connectez-vous pour gérer vos listes" : "Créez votre compte organisateur";
+            document.getElementById('auth-title').innerText = isLoginMode ? "Connectez-vous" : "Créer un compte";
             document.getElementById('btn-auth-primary').innerText = isLoginMode ? "Se connecter" : "S'inscrire";
-            document.getElementById('btn-auth-secondary').innerText = isLoginMode ? "Créer un compte" : "J'ai déjà un compte";
             document.getElementById('btn-auth-primary').onclick = isLoginMode ? handleLogin : handleSignup;
         }
 
@@ -148,46 +185,31 @@
             const password = document.getElementById('login-password').value;
             const prenom = document.getElementById('reg-prenom').value;
             const nom = document.getElementById('reg-nom').value;
-            const { error } = await _supabase.auth.signUp({
-                email, password,
-                options: { data: { first_name: prenom, last_name: nom } }
-            });
-            if (error) alert(error.message);
-            else alert("Inscription réussie ! Vérifiez vos emails.");
+            const { error } = await _supabase.auth.signUp({ email, password, options: { data: { first_name: prenom, last_name: nom } } });
+            if (error) alert(error.message); else alert("Vérifiez vos emails.");
         }
 
         async function handleLogin() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-            if (error) alert(error.message);
-            else showApp(data.user);
+            if (error) alert(error.message); else showApp(data.user);
         }
 
         async function handleForgotPassword() {
             const email = document.getElementById('login-email').value;
-            if (!email) return alert("Veuillez saisir votre email pour recevoir le lien.");
-            const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.href,
-            });
-            if (error) alert(error.message);
-            else alert("Lien de réinitialisation envoyé !");
+            if (!email) return alert("Entrez votre email.");
+            const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+            if (error) alert(error.message); else alert("Lien envoyé !");
         }
 
         async function updatePassword() {
             const newPassword = document.getElementById('new-password').value;
-            if (newPassword.length < 6) return alert("Le mot de passe doit faire 6 caractères minimum.");
             const { error } = await _supabase.auth.updateUser({ password: newPassword });
-            if (error) alert(error.message);
-            else {
-                alert("Mot de passe mis à jour !");
-                window.location.hash = "";
-                location.reload();
-            }
+            if (error) alert(error.message); else { alert("Réussi !"); window.location.hash = ""; location.reload(); }
         }
 
-        // --- LOGIQUE BASE DE DONNÉES ---
-
+        // --- LOGIQUE DONNÉES ---
         async function sauvegarderListe() {
             const projects = [];
             document.querySelectorAll('.action-item').forEach(item => {
@@ -204,8 +226,7 @@
                 type_don: document.getElementById('input-type').value,
                 projets: projects
             }], { onConflict: 'user_id' });
-            if (error) alert("Erreur : " + error.message);
-            else alert("Sauvegarde réussie !");
+            if (error) alert(error.message); else alert("Liste enregistrée !");
         }
 
         async function chargerListeExistante(userId) {
@@ -213,29 +234,29 @@
             const container = document.getElementById('liste-actions');
             container.innerHTML = '';
             if (data) {
-                document.getElementById('input-titre').value = data.titre || '';
-                document.getElementById('input-desc').value = data.description || '';
-                document.getElementById('input-type').value = data.type_don || 'Sadaqa Jariya';
+                document.getElementById('input-titre').value = data.titre;
+                document.getElementById('input-desc').value = data.description;
+                document.getElementById('input-type').value = data.type_don;
                 data.projets.forEach(p => ajouterLigne(p.nom, p.url));
-            } else {
-                ajouterLigne();
-            }
+            } else ajouterLigne();
         }
 
         function showApp(user) {
             document.getElementById('vue-login').classList.add('hidden');
             document.getElementById('app-content').classList.remove('hidden');
-            if (user && user.user_metadata) {
-                document.getElementById('user-welcome').innerText = `Bonjour, ${user.user_metadata.first_name || user.email}`;
-            }
+            document.getElementById('user-welcome').innerText = `Bonjour, ${user.user_metadata.first_name || user.email}`;
             chargerListeExistante(user.id);
         }
 
         function handleLogout() { _supabase.auth.signOut(); location.reload(); }
 
         window.onload = async () => {
-            // Détection du mode récupération de mot de passe
-            if (window.location.hash.includes("type=recovery")) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const publicId = urlParams.get('id');
+
+            if (publicId) {
+                chargerModePublic(publicId);
+            } else if (window.location.hash.includes("type=recovery")) {
                 document.getElementById('auth-title').innerText = "Nouveau mot de passe";
                 document.getElementById('standard-auth-fields').classList.add('hidden');
                 document.getElementById('auth-buttons').classList.add('hidden');
@@ -246,8 +267,6 @@
             }
         };
 
-        // --- INTERFACE ---
-
         function ajouterLigne(nom = '', url = '') {
             const container = document.getElementById('liste-actions');
             const div = document.createElement('div');
@@ -257,17 +276,15 @@
         }
 
         function toggleView() {
-            const vueCreateur = document.getElementById('vue-createur');
-            const vueDonateur = document.getElementById('vue-donateur');
+            const vc = document.getElementById('vue-createur');
+            const vd = document.getElementById('vue-donateur');
             const btn = document.getElementById('btn-switch');
-            if (vueDonateur.classList.contains('hidden')) {
+            if (vd.classList.contains('hidden')) {
                 genererRendu();
-                vueCreateur.classList.add('hidden');
-                vueDonateur.classList.remove('hidden');
-                btn.innerText = "Modifier la liste";
+                vc.classList.add('hidden'); vd.classList.remove('hidden');
+                btn.innerText = "Modifier";
             } else {
-                vueCreateur.classList.remove('hidden');
-                vueDonateur.classList.add('hidden');
+                vc.classList.remove('hidden'); vd.classList.add('hidden');
                 btn.innerText = "Voir le résultat";
             }
         }
@@ -284,10 +301,12 @@
                 const url = item.querySelector('.action-url').value;
                 if (nom && url) {
                     const screenshotUrl = `https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&embed=screenshot.url`;
-                    grid.innerHTML += `<div class="card-gradient p-6 rounded-3xl shadow-sm border border-emerald-50 flex flex-col animate-fade-in"><div class="w-full h-44 bg-gray-100 rounded-xl mb-4 overflow-hidden border"><img src="${screenshotUrl}" class="w-full h-full object-cover"></div><a href="${url}" target="_blank" class="w-full py-3 mb-4 bg-emerald-600 text-white rounded-xl text-center font-bold">Participer</a><h3 class="text-xl font-bold text-gray-800 leading-tight line-clamp-2">${nom}</h3><p class="text-xs text-emerald-600 font-bold uppercase mt-1">${type}</p></div>`;
+                    grid.innerHTML += `<div class="card-gradient p-6 rounded-3xl shadow-sm border border-emerald-50 flex flex-col animate-fade-in"><div class="w-full h-44 bg-gray-100 rounded-xl mb-4 overflow-hidden border"><img src="${screenshotUrl}" class="w-full h-full object-cover"></div><a href="${url}" target="_blank" class="w-full py-3 mb-4 bg-emerald-600 text-white rounded-xl text-center font-bold">Participer</a><h3 class="text-xl font-bold text-gray-800 leading-tight line-clamp-2 h-[3rem] flex items-center">${nom}</h3><p class="text-xs text-emerald-600 font-bold uppercase mt-1">${type}</p></div>`;
                 }
             });
         }
     </script>
 </body>
 </html>
+</html>
+
