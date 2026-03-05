@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sadaqa Impact - Officiel</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card-gradient { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans text-gray-900">
+
+    <section id="vue-login" class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-white rounded-[2.5rem] shadow-xl p-10 animate-fade-in border border-emerald-50 text-center">
+            <div class="text-4xl mb-4">🌙</div>
+            <h1 class="text-3xl font-extrabold text-emerald-800 mb-2">Sadaqa Impact</h1>
+            <p id="auth-title" class="text-gray-500 mb-8 font-medium">Connectez-vous pour gérer vos listes</p>
+            
+            <div class="space-y-4 text-left">
+                <div id="register-fields" class="hidden grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Prénom</label>
+                        <input type="text" id="reg-prenom" placeholder="Prénom" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Nom</label>
+                        <input type="text" id="reg-nom" placeholder="Nom" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Adresse email</label>
+                    <input type="email" id="login-email" placeholder="nom@exemple.com" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Mot de passe</label>
+                    <input type="password" id="login-password" placeholder="••••••••" class="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <div class="flex flex-col gap-3 mt-4">
+                    <button id="btn-auth-primary" onclick="handleLogin()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 shadow-lg transition-all">
+                        Se connecter
+                    </button>
+                    <button id="btn-auth-secondary" onclick="toggleAuthMode()" class="w-full py-4 bg-white border-2 border-emerald-600 text-emerald-600 rounded-2xl font-bold hover:bg-emerald-50 transition-all">
+                        Créer un compte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="app-content" class="hidden">
+        <nav class="bg-white border-b p-4 mb-8 sticky top-0 z-50 shadow-sm">
+            <div class="max-w-5xl mx-auto flex justify-between items-center">
+                <h1 class="text-xl font-bold text-emerald-700 flex items-center gap-2">🌙 Sadaqa Impact</h1>
+                <div class="flex gap-3 items-center">
+                    <span id="user-welcome" class="hidden md:block text-sm font-medium text-gray-500 mr-2"></span>
+                    <button onclick="toggleView()" id="btn-switch" class="bg-emerald-600 text-white px-6 py-2 rounded-xl text-sm font-bold shadow-md">Voir le résultat</button>
+                    <button onclick="handleLogout()" class="p-2 text-red-500 hover:bg-red-50 rounded-lg">✕</button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-5xl mx-auto px-4 pb-20">
+            <section id="vue-createur" class="space-y-6">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Votre liste de dons</h2>
+                        <button onclick="sauvegarderListe()" class="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-sm font-bold hover:bg-emerald-200 transition-all">
+                            💾 Enregistrer ma liste
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Titre de la collecte</label>
+                            <input type="text" id="input-titre" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Type de don</label>
+                            <select id="input-type" class="w-full p-3 border border-gray-300 rounded-xl outline-none bg-white">
+                                <option value="Sadaqa Jariya">Sadaqa Jariya</option>
+                                <option value="Zakat Al Maal">Zakat Al Maal</option>
+                                <option value="Zakat Al Fitr">Zakat Al Fitr</option>
+                                <option value="Sadaqa">Sadaqa</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-8">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Message aux proches</label>
+                        <textarea id="input-desc" rows="3" class="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                    </div>
+                    <hr class="my-8 border-gray-100">
+                    <h3 class="text-lg font-bold mb-4 text-gray-800">Actions de dons</h3>
+                    <div id="liste-actions" class="space-y-4"></div>
+                    <button onclick="ajouterLigne()" class="mt-4 text-emerald-600 font-bold hover:text-emerald-700">+ Ajouter une action</button>
+                </div>
+            </section>
+
+            <section id="vue-donateur" class="hidden space-y-8 animate-fade-in">
+                <div class="text-center py-10">
+                    <span id="display-badge" class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-emerald-100 text-emerald-800 border border-emerald-200"></span>
+                    <h2 id="display-titre" class="text-4xl font-extrabold mt-6 text-gray-900 tracking-tight"></h2>
+                    <p id="display-desc" class="max-w-2xl mx-auto mt-4 text-lg text-gray-600 leading-relaxed"></p>
+                </div>
+                <div id="display-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // CONFIGURATION FIXE
+        const SUPABASE_URL = "https://qrtfsakvzlkjqueurvci.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFydGZzYWt2emxranF1ZXVydmNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MDM5MDksImV4cCI6MjA4ODI3OTkwOX0.muCLFvI4h8p8jmjOgrRNKuqkLlD2Xbx9jxZKsSjMB4g";
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let isLoginMode = true;
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('register-fields').classList.toggle('hidden');
+            document.getElementById('auth-title').innerText = isLoginMode ? "Connectez-vous pour gérer vos listes" : "Créez votre compte organisateur";
+            document.getElementById('btn-auth-primary').innerText = isLoginMode ? "Se connecter" : "S'inscrire";
+            document.getElementById('btn-auth-secondary').innerText = isLoginMode ? "Créer un compte" : "J'ai déjà un compte";
+            document.getElementById('btn-auth-primary').onclick = isLoginMode ? handleLogin : handleSignup;
+        }
+
+        async function handleSignup() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const prenom = document.getElementById('reg-prenom').value;
+            const nom = document.getElementById('reg-nom').value;
+
+            const { error } = await _supabase.auth.signUp({
+                email, password,
+                options: { data: { first_name: prenom, last_name: nom } }
+            });
+
+            if (error) alert(error.message);
+            else alert("Inscription réussie ! Vérifiez vos emails.");
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) alert(error.message);
+            else showApp(data.user);
+        }
+
+        async function sauvegarderListe() {
+            const projects = [];
+            document.querySelectorAll('.action-item').forEach(item => {
+                const nom = item.querySelector('.action-nom').value;
+                const url = item.querySelector('.action-url').value;
+                if(nom && url) projects.push({ nom, url });
+            });
+
+            const { data: { user } } = await _supabase.auth.getUser();
+            
+            const { error } = await _supabase.from('listes_dons').upsert([{
+                user_id: user.id,
+                organisateur_nom: `${user.user_metadata.first_name || ''} ${user.user_metadata.last_name || ''}`,
+                titre: document.getElementById('input-titre').value,
+                description: document.getElementById('input-desc').value,
+                type_don: document.getElementById('input-type').value,
+                projets: projects
+            }], { onConflict: 'user_id' });
+
+            if (error) alert("Erreur : " + error.message);
+            else alert("Sauvegarde réussie !");
+        }
+
+        async function chargerListeExistante(userId) {
+            const { data } = await _supabase.from('listes_dons').select('*').eq('user_id', userId).single();
+            const container = document.getElementById('liste-actions');
+            container.innerHTML = '';
+            
+            if (data) {
+                document.getElementById('input-titre').value = data.titre || '';
+                document.getElementById('input-desc').value = data.description || '';
+                document.getElementById('input-type').value = data.type_don || 'Sadaqa Jariya';
+                data.projets.forEach(p => ajouterLigne(p.nom, p.url));
+            } else {
+                ajouterLigne();
+            }
+        }
+
+        function showApp(user) {
+            document.getElementById('vue-login').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+            if (user && user.user_metadata) {
+                document.getElementById('user-welcome').innerText = `Bonjour, ${user.user_metadata.first_name || user.email}`;
+            }
+            chargerListeExistante(user.id);
+        }
+
+        function handleLogout() { _supabase.auth.signOut(); location.reload(); }
+
+        window.onload = async () => {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) showApp(session.user);
+        };
+
+        function ajouterLigne(nom = '', url = '') {
+            const container = document.getElementById('liste-actions');
+            const div = document.createElement('div');
+            div.className = "action-item flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-300 animate-fade-in";
+            div.innerHTML = `<div class="flex flex-col md:flex-row gap-3"><input type="text" placeholder="Nom du projet" class="action-nom flex-1 p-3 border rounded-lg outline-none" value="${nom}"><input type="text" placeholder="Lien (URL)" class="action-url flex-1 p-3 border rounded-lg outline-none" value="${url}"></div>`;
+            container.appendChild(div);
+        }
+
+        function toggleView() {
+            const vueCreateur = document.getElementById('vue-createur');
+            const vueDonateur = document.getElementById('vue-donateur');
+            const btn = document.getElementById('btn-switch');
+            if (vueDonateur.classList.contains('hidden')) {
+                genererRendu();
+                vueCreateur.classList.add('hidden');
+                vueDonateur.classList.remove('hidden');
+                btn.innerText = "Modifier la liste";
+            } else {
+                vueCreateur.classList.remove('hidden');
+                vueDonateur.classList.add('hidden');
+                btn.innerText = "Voir le résultat";
+            }
+        }
+
+        function genererRendu() {
+            const type = document.getElementById('input-type').value;
+            document.getElementById('display-titre').innerText = document.getElementById('input-titre').value || "Ma Liste";
+            document.getElementById('display-desc').innerText = document.getElementById('input-desc').value || "";
+            document.getElementById('display-badge').innerText = type;
+            const grid = document.getElementById('display-grid');
+            grid.innerHTML = ''; 
+            document.querySelectorAll('.action-item').forEach(item => {
+                const nom = item.querySelector('.action-nom').value;
+                const url = item.querySelector('.action-url').value;
+                if (nom && url) {
+                    const screenshotUrl = `https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&embed=screenshot.url`;
+                    grid.innerHTML += `<div class="card-gradient p-6 rounded-3xl shadow-sm border border-emerald-50 flex flex-col animate-fade-in"><div class="w-full h-44 bg-gray-100 rounded-xl mb-4 overflow-hidden border"><img src="${screenshotUrl}" class="w-full h-full object-cover"></div><a href="${url}" target="_blank" class="w-full py-3 mb-4 bg-emerald-600 text-white rounded-xl text-center font-bold">Participer</a><h3 class="text-xl font-bold text-gray-800 leading-tight line-clamp-2">${nom}</h3><p class="text-xs text-emerald-600 font-bold uppercase mt-1">${type}</p></div>`;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
