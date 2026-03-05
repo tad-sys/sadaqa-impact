@@ -104,13 +104,13 @@
                 </div>
 
                 <div id="catalogue-idees" class="hidden bg-blue-50 p-6 rounded-[2rem] border border-blue-100 animate-fade-in grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                    <p class="col-span-full text-xs font-bold text-blue-800 uppercase mb-2">Actions directes ciblées :</p>
-                    <button onclick="ajouterIdee('Offrir un Puits d\'Eau Potable', 'https://www.helloasso.com/associations/secours-islamique-france/formulaires/15')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">💧 Puits d'eau (SIF)</button>
-                    <button onclick="ajouterIdee('Parrainage d\'un Orphelin', 'https://www.helloasso.com/associations/human-appeal-france/formulaires/1')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🧒 Orphelins (H. Appeal)</button>
-                    <button onclick="ajouterIdee('Colis Alimentaire Famille', 'https://www.helloasso.com/associations/secours-islamique-france/formulaires/24')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🍲 Aide Alimentaire</button>
-                    <button onclick="ajouterIdee('Planter des Oliviers', 'https://www.helloasso.com/associations/life/formulaires/11')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🌳 Arbres Fruitiers (LIFE)</button>
-                    <button onclick="ajouterIdee('Don pour la Mosquée de Clichy', 'https://www.helloasso.com/associations/centre-islamique-et-culturel-de-clichy-sous-bois/formulaires/1')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🕌 Mosquées</button>
-                    <button onclick="ajouterIdee('Urgence Médicale Mondiale', 'https://www.helloasso.com/associations/uossm-france/formulaires/2')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🚑 Santé & Urgence</button>
+                    <p class="col-span-full text-xs font-bold text-blue-800 uppercase mb-2">Actions Directes (Paiement) :</p>
+                    <button onclick="ajouterIdee('Construire un Puits d\'eau', 'https://www.helloasso.com/associations/secours-islamique-france/formulaires/15/widget')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">💧 Puits d'eau (SIF)</button>
+                    <button onclick="ajouterIdee('Parrainer un Orphelin', 'https://www.helloasso.com/associations/human-appeal-france/formulaires/1/widget')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🧒 Orphelin (Human Appeal)</button>
+                    <button onclick="ajouterIdee('Donner un Colis Alimentaire', 'https://www.helloasso.com/associations/secours-islamique-france/formulaires/38/widget')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🍲 Colis Alimentaire (SIF)</button>
+                    <button onclick="ajouterIdee('Planter un Arbre Fruitier', 'https://www.helloasso.com/associations/life/formulaires/11/widget')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🌳 Plantation (LIFE)</button>
+                    <button onclick="ajouterIdee('Soutien à la Mosquée locale', 'https://www.helloasso.com/associations/centre-islamique-et-culturel-de-clichy-sous-bois/formulaires/1/widget')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🕌 Mosquées</button>
+                    <button onclick="ajouterIdee('Urgence Santé / Soins', 'https://www.helloasso.com/associations/uossm-france/formulaires/2/widget')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🚑 Santé Urgence</button>
                 </div>
             </div>
         </main>
@@ -209,9 +209,9 @@
 
         // --- FONCTION SUPPRESSION ---
         async function supprimerListe(id) {
-            if (!confirm("Supprimer définitivement cette liste ?")) return;
+            if(!confirm("Supprimer cette liste définitivement ?")) return;
             const { error } = await _supabase.from('listes_dons').delete().eq('id', id);
-            if (error) alert(error.message); else chargerMesListes();
+            if(error) alert(error.message); else chargerMesListes();
         }
 
         async function chargerMesListes() {
