@@ -97,7 +97,21 @@
             <div class="space-y-4">
                 <h3 class="font-bold text-lg text-gray-800">Actions de dons</h3>
                 <div id="liste-actions" class="space-y-4"></div>
-                <button onclick="ajouterLigne()" class="text-emerald-600 font-bold hover:text-emerald-700 transition-colors">+ Ajouter un projet</button>
+                
+                <div class="flex flex-wrap gap-4 mt-4">
+                    <button onclick="ajouterLigne()" class="text-emerald-600 font-bold hover:text-emerald-700 transition-colors">+ Ajouter un projet personnalisé</button>
+                    <button onclick="toggleCatalogue()" class="text-blue-600 font-bold hover:text-blue-700 transition-colors">💡 Voir des idées de projets</button>
+                </div>
+
+                <div id="catalogue-idees" class="hidden bg-blue-50 p-6 rounded-[2rem] border border-blue-100 animate-fade-in grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                    <p class="col-span-full text-xs font-bold text-blue-800 uppercase mb-2">Cliquez pour ajouter :</p>
+                    <button onclick="ajouterIdee('Construction d\'un Puits', 'https://www.helloasso.com/recherche?q=puits')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">💧 Puits d'eau potable</button>
+                    <button onclick="ajouterIdee('Soutien aux Orphelins', 'https://www.helloasso.com/recherche?q=orphelins')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🧒 Parrainage Orphelins</button>
+                    <button onclick="ajouterIdee('Repas de Rupture (Iftar)', 'https://www.helloasso.com/recherche?q=iftar')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🍲 Repas Alimentaires</button>
+                    <button onclick="ajouterIdee('Plantation d\'arbres fruitiers', 'https://www.helloasso.com/recherche?q=arbres')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🌳 Arbres Fruitiers</button>
+                    <button onclick="ajouterIdee('Construction d\'une Mosquée', 'https://www.helloasso.com/recherche?q=mosquee')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🕌 Édification Mosquée</button>
+                    <button onclick="ajouterIdee('Aide Médicale d\'Urgence', 'https://www.helloasso.com/recherche?q=sante')" class="text-left p-3 bg-white rounded-xl text-sm border hover:border-blue-400 transition-all">🚑 Soins & Médicaments</button>
+                </div>
             </div>
         </main>
     </div>
@@ -152,6 +166,7 @@
             cacherToutesVues();
             document.getElementById('app-editor').classList.remove('hidden');
             document.getElementById('liste-actions').innerHTML = '';
+            document.getElementById('catalogue-idees').classList.add('hidden');
             
             if (liste) {
                 document.getElementById('edit-id').value = liste.id;
@@ -165,6 +180,17 @@
                 document.getElementById('input-desc').value = '';
                 ajouterLigne();
             }
+        }
+
+        // --- CATALOGUE D'IDÉES ---
+        function toggleCatalogue() {
+            document.getElementById('catalogue-idees').classList.toggle('hidden');
+        }
+
+        function ajouterIdee(nom, url) {
+            ajouterLigne(nom, url);
+            // Optionnel : masquer le catalogue après ajout
+            // document.getElementById('catalogue-idees').classList.add('hidden');
         }
 
         // --- AUTHENTIFICATION ---
