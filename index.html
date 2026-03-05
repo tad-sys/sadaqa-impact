@@ -13,7 +13,6 @@
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         @media (max-width: 640px) {
             .input-responsive { font-size: 16px !important; }
-            .mobile-card { padding: 1rem !important; }
         }
     </style>
 </head>
@@ -23,15 +22,15 @@
         <div class="max-w-md w-full bg-white rounded-[2.5rem] shadow-xl p-8 sm:p-10 animate-fade-in border border-emerald-50 text-center">
             <div class="text-4xl mb-4">🌙</div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-emerald-800 mb-2">Sadaqa Impact</h1>
-            <p id="auth-title" class="text-gray-500 mb-8 font-medium">Gérez vos collectes de dons</p>
+            <p class="text-gray-500 mb-8 font-medium">Gérez vos collectes de dons</p>
             <div class="space-y-4 text-left">
                 <div id="register-fields" class="hidden grid grid-cols-2 gap-3">
-                    <input type="text" id="reg-prenom" placeholder="Prénom" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none">
-                    <input type="text" id="reg-nom" placeholder="Nom" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none">
+                    <input type="text" id="reg-prenom" placeholder="Prénom" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="text" id="reg-nom" placeholder="Nom" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
                 <div id="standard-auth-fields" class="space-y-4">
-                    <input type="email" id="login-email" placeholder="Email" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none">
-                    <input type="password" id="login-password" placeholder="Mot de passe" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none">
+                    <input type="email" id="login-email" placeholder="Email" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="password" id="login-password" placeholder="Mot de passe" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
                 <div id="auth-buttons" class="flex flex-col gap-3 mt-4">
                     <button id="btn-auth-primary" onclick="handleLogin()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg">Se connecter</button>
@@ -43,7 +42,7 @@
 
     <div id="app-dashboard" class="hidden">
         <nav class="bg-white border-b p-4 mb-6 sticky top-0 z-50">
-            <div class="max-w-5xl mx-auto flex justify-between items-center px-2">
+            <div class="max-w-5xl mx-auto flex justify-between items-center">
                 <h1 class="text-lg font-bold text-emerald-700">🌙 Sadaqa Impact</h1>
                 <button onclick="handleLogout()" class="text-xs font-bold text-red-500 bg-red-50 px-3 py-2 rounded-xl">Déconnexion</button>
             </div>
@@ -51,7 +50,7 @@
         <main class="max-w-5xl mx-auto px-4 pb-10">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
                 <div>
-                    <h2 class="text-2xl sm:text-3xl font-black text-gray-800 tracking-tight">Mes Listes</h2>
+                    <h2 class="text-2xl sm:text-3xl font-black text-gray-800">Mes Listes</h2>
                     <p id="user-welcome" class="text-gray-500 text-xs font-medium"></p>
                 </div>
                 <button onclick="ouvrirEditeur()" class="bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold shadow-lg">+ Nouvelle liste</button>
@@ -64,29 +63,24 @@
         <nav class="border-b p-4 sticky top-0 bg-white z-50">
             <div class="max-w-5xl mx-auto flex justify-between items-center">
                 <button onclick="retourDashboard()" class="text-gray-400 font-bold">← Retour</button>
-                <button onclick="sauvegarderListe()" class="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold shadow-md">Enregistrer</button>
+                <button onclick="sauvegarderListe()" class="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold">Enregistrer</button>
             </div>
         </nav>
         <main class="max-w-3xl mx-auto p-4 sm:p-6 space-y-6">
             <input type="hidden" id="edit-id">
             <div class="space-y-4">
-                <input type="text" id="input-titre" placeholder="Titre de la collecte" class="input-responsive text-2xl font-bold w-full outline-none border-b focus:border-emerald-500 pb-2">
-                <select id="input-type" class="w-full p-4 bg-emerald-50 rounded-2xl text-emerald-800 font-bold outline-none border-none">
+                <input type="text" id="input-titre" placeholder="Titre de la collecte" class="text-2xl font-bold w-full outline-none border-b pb-2">
+                <select id="input-type" class="w-full p-4 bg-emerald-50 rounded-2xl text-emerald-800 font-bold outline-none">
                     <option value="Sadaqa Jariya">Sadaqa Jariya</option>
                     <option value="Zakat Al Maal">Zakat Al Maal</option>
-                    <option value="Zakat Al Fitr">Zakat Al Fitr</option>
                     <option value="Sadaqa">Sadaqa</option>
-                    <option value="Autre">Autre</option>
                 </select>
-                <textarea id="input-desc" placeholder="Message aux donateurs..." class="input-responsive w-full p-4 bg-gray-50 rounded-[2rem] outline-none" rows="4"></textarea>
+                <textarea id="input-desc" placeholder="Message..." class="w-full p-4 bg-gray-50 rounded-[2rem] outline-none" rows="4"></textarea>
             </div>
-            <div class="space-y-4">
-                <h3 class="font-bold text-lg text-gray-800">Actions de dons</h3>
-                <div id="liste-actions" class="space-y-4"></div>
-                <button onclick="ajouterLigne()" class="w-full py-4 border-2 border-dashed border-emerald-200 text-emerald-600 font-bold rounded-2xl hover:bg-emerald-50 transition-colors">
-                    + Ajouter une action
-                </button>
-            </div>
+            <div id="liste-actions" class="space-y-4"></div>
+            <button onclick="ajouterLigne()" class="w-full py-4 border-2 border-dashed border-emerald-200 text-emerald-600 font-bold rounded-2xl">
+                + Ajouter une action
+            </button>
         </main>
     </div>
 
@@ -99,16 +93,12 @@
             </div>
         </nav>
         <main class="max-w-5xl mx-auto p-4 sm:p-6 space-y-12 py-16">
-            <div class="text-center space-y-4 animate-fade-in">
-                <span id="pub-badge" class="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 border border-emerald-200"></span>
-                <h1 id="pub-titre" class="text-3xl sm:text-4xl font-extrabold text-gray-900 px-2"></h1>
-                <p id="pub-desc" class="max-w-2xl mx-auto text-gray-600"></p>
-                <p id="pub-organisateur" class="text-xs text-gray-400 italic"></p>
+            <div class="text-center space-y-4">
+                <span id="pub-badge" class="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800"></span>
+                <h1 id="pub-titre" class="text-3xl font-extrabold text-gray-900"></h1>
+                <p id="pub-desc" class="text-gray-600"></p>
             </div>
             <div id="pub-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-            <div id="back-to-editor" class="hidden text-center mt-20 pt-8 border-t px-4">
-                <button onclick="location.href=window.location.pathname" class="text-emerald-600 font-bold hover:underline">Créer ma propre liste sur Sadaqa Impact</button>
-            </div>
         </main>
     </div>
 
@@ -129,6 +119,69 @@
             chargerMesListes();
         }
 
+        async function chargerMesListes() {
+            const { data } = await _supabase.from('listes_dons').select('*').eq('user_id', currentUserId).order('created_at', { ascending: false });
+            const container = document.getElementById('container-listes');
+            container.innerHTML = '';
+            data.forEach(liste => {
+                const div = document.createElement('div');
+                div.className = "bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 relative";
+                div.innerHTML = `
+                    <div class="mb-6"><h3 class="font-bold text-xl mb-1">${liste.titre || 'Sans titre'}</h3><p class="text-emerald-600 text-[10px] font-black uppercase">${liste.type_don}</p></div>
+                    <div class="flex flex-col gap-2">
+                        <button onclick='chargerVuePublique("${liste.id}", true)' class="w-full bg-blue-600 text-white py-3 rounded-2xl text-xs font-bold">👁️ Aperçu</button>
+                        <div class="flex gap-2">
+                            <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="flex-1 bg-gray-100 py-3 rounded-2xl text-xs font-bold">Modifier</button>
+                            <button onclick='copierLien("${liste.id}")' class="flex-1 bg-emerald-50 text-emerald-700 py-3 rounded-2xl text-xs font-bold">🔗 Partager</button>
+                        </div>
+                    </div>`;
+                container.appendChild(div);
+            });
+        }
+
+        function copierLien(id) {
+            const url = `${window.location.origin}${window.location.pathname}?list=${id}`;
+            navigator.clipboard.writeText(url).then(() => alert("Lien copié ! Vous pouvez l'envoyer aux participants."));
+        }
+
+        async function chargerVuePublique(id, estApercu = false) {
+            const { data } = await _supabase.from('listes_dons').select('*').eq('id', id).single();
+            if (!data) return;
+            cacherToutesVues();
+            document.getElementById('app-public').classList.remove('hidden');
+            if(estApercu) document.getElementById('nav-aperçu').classList.remove('hidden');
+            document.getElementById('pub-titre').innerText = data.titre;
+            document.getElementById('pub-desc').innerText = data.description;
+            document.getElementById('pub-badge').innerText = data.type_don;
+            
+            const grid = document.getElementById('pub-grid');
+            grid.innerHTML = '';
+            data.projets.forEach(p => {
+                const cleanUrl = p.url.trim();
+                // IMAGE DEZOOMÉE (Viewport large + Scale down)
+                const screenshotUrl = `https://api.microlink.io/?url=${encodeURIComponent(cleanUrl)}&screenshot=true&embed=screenshot.url&viewport=1280x800`;
+                grid.innerHTML += `
+                    <div class="card-gradient p-5 rounded-[2.5rem] border border-emerald-50 flex flex-col animate-fade-in">
+                        <div class="w-full h-44 bg-emerald-800 rounded-3xl mb-4 overflow-hidden flex items-center justify-center">
+                            <img src="${screenshotUrl}" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                            <span class="text-white font-bold text-xs absolute">Voir le projet</span>
+                        </div>
+                        <a href="${cleanUrl}" target="_blank" class="w-full py-4 mb-4 bg-emerald-600 text-white rounded-2xl text-center font-bold">Faire un don</a>
+                        <h3 class="font-bold text-gray-800">${p.nom}</h3>
+                    </div>`;
+            });
+        }
+
+        function ajouterLigne(nom = '', url = '') {
+            const div = document.createElement('div');
+            div.className = "action-item flex flex-col gap-2 p-4 bg-gray-50 rounded-[1.5rem] relative";
+            div.innerHTML = `
+                <input type="text" placeholder="Nom du projet" class="action-nom w-full p-3 border rounded-xl" value="${nom}">
+                <input type="text" placeholder="Lien URL" class="action-url w-full p-3 border rounded-xl" value="${url}">
+            `;
+            document.getElementById('liste-actions').appendChild(div);
+        }
+
         function ouvrirEditeur(liste = null) {
             cacherToutesVues();
             document.getElementById('app-editor').classList.remove('hidden');
@@ -141,65 +194,8 @@
                 liste.projets.forEach(p => ajouterLigne(p.nom, p.url));
             } else {
                 document.getElementById('edit-id').value = '';
-                document.getElementById('input-titre').value = '';
-                document.getElementById('input-desc').value = '';
                 ajouterLigne();
             }
-        }
-
-        async function handleLogin() {
-            const { data, error } = await _supabase.auth.signInWithPassword({
-                email: document.getElementById('login-email').value,
-                password: document.getElementById('login-password').value
-            });
-            if (error) alert(error.message); else checkSession();
-        }
-
-        async function handleSignup() {
-            const { error } = await _supabase.auth.signUp({
-                email: document.getElementById('login-email').value,
-                password: document.getElementById('login-password').value,
-                options: { data: { first_name: document.getElementById('reg-prenom').value } }
-            });
-            if (error) alert(error.message); else alert("Compte créé !");
-        }
-
-        function handleLogout() { _supabase.auth.signOut().then(() => location.reload()); }
-
-        function toggleAuthMode() {
-            const isLogin = document.getElementById('register-fields').classList.contains('hidden');
-            document.getElementById('register-fields').classList.toggle('hidden');
-            document.getElementById('btn-auth-primary').innerText = isLogin ? "S'inscrire" : "Se connecter";
-            document.getElementById('btn-auth-primary').onclick = isLogin ? handleSignup : handleLogin;
-        }
-
-        async function supprimerListe(id) {
-            if(!confirm("Supprimer cette liste ?")) return;
-            const { error } = await _supabase.from('listes_dons').delete().eq('id', id);
-            if(error) alert(error.message); else chargerMesListes();
-        }
-
-        async function chargerMesListes() {
-            const { data } = await _supabase.from('listes_dons').select('*').eq('user_id', currentUserId).order('created_at', { ascending: false });
-            const container = document.getElementById('container-listes');
-            container.innerHTML = '';
-            data.forEach(liste => {
-                const div = document.createElement('div');
-                div.className = "bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 relative mobile-card";
-                div.innerHTML = `
-                    <button onclick='supprimerListe("${liste.id}")' class="absolute top-6 right-6 text-red-300 hover:text-red-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                    <div class="mb-6"><h3 class="font-bold text-xl mb-1 line-clamp-2 pr-8">${liste.titre || 'Sans titre'}</h3><p class="text-emerald-600 text-[10px] font-black uppercase">${liste.type_don}</p></div>
-                    <div class="flex flex-col gap-2">
-                        <button onclick='chargerVuePublique("${liste.id}", true)' class="w-full bg-blue-600 text-white py-3.5 rounded-2xl text-xs font-bold">👁️ Voir l'aperçu</button>
-                        <div class="flex gap-2">
-                            <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="flex-1 bg-gray-100 py-3 rounded-2xl text-xs font-bold">⚙️ Modifier</button>
-                            <button onclick='copierLien("${liste.id}")' class="flex-1 bg-emerald-50 text-emerald-700 py-3 rounded-2xl text-xs font-bold">🔗 Partager</button>
-                        </div>
-                    </div>`;
-                container.appendChild(div);
-            });
         }
 
         async function sauvegarderListe() {
@@ -210,69 +206,41 @@
                 if(nom && url) projects.push({ nom: nom.trim(), url: url.trim() });
             });
             const id = document.getElementById('edit-id').value;
-            const payload = { user_id: currentUserId, titre: document.getElementById('input-titre').value, description: document.getElementById('input-desc').value, type_don: document.getElementById('input-type').value, projets: projects, organisateur_nom: "Organisateur" };
+            const payload = { user_id: currentUserId, titre: document.getElementById('input-titre').value, description: document.getElementById('input-desc').value, type_don: document.getElementById('input-type').value, projets: projects };
             const { error } = id ? await _supabase.from('listes_dons').update(payload).eq('id', id) : await _supabase.from('listes_dons').insert([payload]);
             if (error) alert(error.message); else retourDashboard();
         }
 
-        function copierLien(id) {
-            const url = `${window.location.origin}${window.location.pathname}?list=${id}`;
-            navigator.clipboard.writeText(url);
-            alert("Lien de partage copié !");
-        }
-
-        async function chargerVuePublique(id, estApercu = false) {
-            const { data } = await _supabase.from('listes_dons').select('*').eq('id', id).single();
-            if (!data) return;
-            cacherToutesVues();
-            document.getElementById('app-public').classList.remove('hidden');
-            if(estApercu) document.getElementById('nav-aperçu').classList.remove('hidden');
-            else document.getElementById('back-to-editor').classList.remove('hidden');
-            document.getElementById('pub-titre').innerText = data.titre;
-            document.getElementById('pub-desc').innerText = data.description;
-            document.getElementById('pub-badge').innerText = data.type_don;
-            document.getElementById('pub-organisateur').innerText = `Proposé par ${data.organisateur_nom || 'un membre'}`;
-            const grid = document.getElementById('pub-grid');
-            grid.innerHTML = '';
-            data.projets.forEach(p => {
-                const cleanUrl = p.url.trim();
-                // DEZOOM MAX : viewport=1280x720 pour voir tout le site
-                const screenshotUrl = `https://api.microlink.io/?url=${encodeURIComponent(cleanUrl)}&screenshot=true&embed=screenshot.url&viewport=1280x720`;
-                grid.innerHTML += `
-                    <div class="card-gradient p-5 rounded-[2.5rem] shadow-sm border border-emerald-50 flex flex-col animate-fade-in mobile-card">
-                        <div class="w-full h-44 bg-gray-200 rounded-3xl mb-4 overflow-hidden border flex items-center justify-center">
-                            <img src="${screenshotUrl}" class="w-full h-full object-cover opacity-0 transition-opacity duration-500" onload="this.style.opacity='1'" onerror="this.src='https://placehold.co/600x400/065f46/ffffff?text=Lien+Don'">
-                        </div>
-                        <a href="${cleanUrl}" target="_blank" class="w-full py-4 mb-4 bg-emerald-600 text-white rounded-2xl text-center font-bold shadow-md">Participer</a>
-                        <h3 class="text-xl font-bold text-gray-800 leading-tight line-clamp-2 h-[3rem] flex items-center">${p.nom}</h3>
-                        <p class="text-[10px] text-emerald-600 font-black uppercase mt-1">${data.type_don}</p>
-                    </div>`;
+        async function handleLogin() {
+            const { data, error } = await _supabase.auth.signInWithPassword({
+                email: document.getElementById('login-email').value,
+                password: document.getElementById('login-password').value
             });
+            if (error) alert(error.message); else checkSession();
         }
 
-        function ajouterLigne(nom = '', url = '') {
-            const div = document.createElement('div');
-            div.className = "action-item flex flex-col gap-2 p-4 bg-gray-50 rounded-[1.5rem] border border-dashed border-gray-300 relative animate-fade-in";
-            div.innerHTML = `
-                <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1 border shadow-sm">
-                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-                <input type="text" placeholder="Nom du projet" class="action-nom input-responsive w-full p-3 bg-white border rounded-xl outline-none" value="${nom}">
-                <input type="text" placeholder="Lien URL (ex: https://...)" class="action-url input-responsive w-full p-3 bg-white border rounded-xl outline-none" value="${url}">
-            `;
-            document.getElementById('liste-actions').appendChild(div);
+        function toggleAuthMode() {
+            document.getElementById('register-fields').classList.toggle('hidden');
         }
 
         async function checkSession() {
             const urlParams = new URLSearchParams(window.location.search);
             const listId = urlParams.get('list');
-            if (listId) chargerVuePublique(listId);
-            else {
+            if (listId) {
+                chargerVuePublique(listId);
+            } else {
                 const { data: { session } } = await _supabase.auth.getSession();
-                if (session) { currentUserId = session.user.id; document.getElementById('user-welcome').innerText = `${session.user.email}`; retourDashboard(); }
-                else { cacherToutesVues(); document.getElementById('vue-login').classList.remove('hidden'); }
+                if (session) { 
+                    currentUserId = session.user.id; 
+                    document.getElementById('user-welcome').innerText = session.user.email; 
+                    retourDashboard(); 
+                } else { 
+                    cacherToutesVues(); 
+                    document.getElementById('vue-login').classList.remove('hidden'); 
+                }
             }
         }
+        function handleLogout() { _supabase.auth.signOut().then(() => location.reload()); }
         window.onload = checkSession;
     </script>
 </body>
