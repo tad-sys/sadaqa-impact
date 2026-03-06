@@ -71,11 +71,18 @@
             <input type="hidden" id="edit-id">
             <div class="space-y-4">
                 <input type="text" id="input-titre" placeholder="Titre de la collecte" class="input-responsive text-2xl font-bold w-full outline-none border-b focus:border-emerald-500 pb-2">
+                
                 <select id="input-type" class="w-full p-4 bg-emerald-50 rounded-2xl text-emerald-800 font-bold outline-none">
                     <option value="Sadaqa Jariya">Sadaqa Jariya</option>
                     <option value="Zakat Al Maal">Zakat Al Maal</option>
                     <option value="Sadaqa">Sadaqa</option>
+                    <option value="Construction Mosquée">Construction Mosquée</option>
+                    <option value="Puits & Eau">Puits & Eau</option>
+                    <option value="Aide Alimentaire">Aide Alimentaire</option>
+                    <option value="Orphelins">Orphelins</option>
+                    <option value="Autre">Autre</option>
                 </select>
+
                 <textarea id="input-desc" placeholder="Message aux donateurs..." class="input-responsive w-full p-4 bg-gray-50 rounded-[2rem] outline-none" rows="4"></textarea>
             </div>
             <div class="space-y-4">
@@ -217,7 +224,6 @@
                 document.getElementById('input-titre').value = liste.titre;
                 document.getElementById('input-desc').value = liste.description;
                 document.getElementById('input-type').value = liste.type_don;
-                // ON AFFICHE LE BOUTON ICI
                 shareBtn.classList.remove('hidden');
                 liste.projets.forEach(p => ajouterLigne(p.nom, p.url));
             } else {
@@ -242,7 +248,6 @@
             
             if (error) alert(error.message); 
             else {
-                // Après sauvegarde, on reste dans l'éditeur mais on affiche le bouton partager si c'est une création
                 if(data && data[0]) {
                     document.getElementById('edit-id').value = data[0].id;
                     document.getElementById('btn-share-inline').classList.remove('hidden');
