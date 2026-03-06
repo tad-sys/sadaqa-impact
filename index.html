@@ -29,15 +29,20 @@
                 <div id="standard-auth-fields" class="space-y-4">
                     <input type="email" id="login-email" placeholder="Email" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
                     <div class="space-y-2">
-                        <input type="password" id="login-password" placeholder="Mot de passe" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                        <div class="relative">
+                            <input type="password" id="login-password" placeholder="Mot de passe" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 pr-12">
+                            <button onclick="togglePasswordVisibility()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-600 transition-colors">
+                                <span id="pwd-icon">👁️</span>
+                            </button>
+                        </div>
                         <div class="flex justify-end px-1">
                             <button onclick="handleForgotPassword()" class="text-sm font-bold text-emerald-600 hover:text-emerald-700">Mot de passe oublié ?</button>
                         </div>
                     </div>
                 </div>
                 <div class="flex flex-col gap-3 mt-6">
-                    <button onclick="handleLogin()" id="btn-login" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg">Se connecter</button>
-                    <button onclick="toggleAuthMode()" class="w-full py-4 bg-white border-2 border-emerald-600 text-emerald-600 rounded-2xl font-bold">Créer un compte</button>
+                    <button onclick="authAction()" id="btn-main-auth" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg">Se connecter</button>
+                    <button onclick="toggleAuthMode()" id="btn-switch-auth" class="w-full py-4 bg-white border-2 border-emerald-600 text-emerald-600 rounded-2xl font-bold">Créer un compte</button>
                 </div>
             </div>
         </div>
@@ -123,6 +128,19 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFydGZzYWt2emxranF1ZXVydmNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MDM5MDksImV4cCI6MjA4ODI3OTkwOX0.muCLFvI4h8p8jmjOgrRNKuqkLlD2Xbx9jxZKsSjMB4g";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserId = null;
+        let isRegisterMode = false;
+
+        function togglePasswordVisibility() {
+            const pwdInput = document.getElementById('login-password');
+            const pwdIcon = document.getElementById('pwd-icon');
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                pwdIcon.innerText = '🙈';
+            } else {
+                pwdInput.type = 'password';
+                pwdIcon.innerText = '👁️';
+            }
+        }
 
         function cacherToutesVues() {
             ['vue-login', 'app-dashboard', 'app-editor', 'app-public'].forEach(id => document.getElementById(id).classList.add('hidden'));
@@ -262,22 +280,31 @@
             }
         }
 
-        async function handleLogin() {
-            const { data, error } = await _supabase.auth.signInWithPassword({
-                email: document.getElementById('login-email').value,
-                password: document.getElementById('login-password').value
-            });
-            if (error) alert(error.message); else checkSession();
+        async function authAction() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            if (isRegisterMode) {
+                const { data, error } = await _supabase.auth.signUp({ email, password });
+                if (error) alert(error.message); else alert("Compte créé ! Vérifiez vos emails pour confirmer.");
+            } else {
+                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+                if (error) alert(error.message); else checkSession();
+            }
         }
 
         async function handleForgotPassword() {
             const email = document.getElementById('login-email').value;
-            if (!email) return alert("Veuillez saisir votre email d'abord dans le champ Email.");
+            if (!email) return alert("Saisissez votre email d'abord.");
             const { error } = await _supabase.auth.resetPasswordForEmail(email);
-            if (error) alert(error.message); else alert("Lien de réinitialisation envoyé ! Vérifiez vos emails.");
+            if (error) alert(error.message); else alert("Lien envoyé par email !");
         }
 
-        function toggleAuthMode() { document.getElementById('register-fields').classList.toggle('hidden'); }
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            document.getElementById('register-fields').classList.toggle('hidden');
+            document.getElementById('btn-main-auth').innerText = isRegisterMode ? "S'inscrire" : "Se connecter";
+            document.getElementById('btn-switch-auth').innerText = isRegisterMode ? "Déjà un compte ? Connexion" : "Créer un compte";
+        }
 
         async function checkSession() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -300,5 +327,4 @@
     </script>
 </body>
 </html>
-
 
