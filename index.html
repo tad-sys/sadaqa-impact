@@ -283,9 +283,17 @@
         async function authAction() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
+            if (!email || !password) return alert("Veuillez remplir les champs.");
+
             if (isRegisterMode) {
                 const { data, error } = await _supabase.auth.signUp({ email, password });
-                if (error) alert(error.message); else alert("Compte créé ! Vérifiez vos emails pour confirmer.");
+                if (error) {
+                    alert(error.message);
+                } else if (data.user && data.session) {
+                    checkSession(); // Connexion directe si possible
+                } else {
+                    alert("Compte créé ! Veuillez vérifier votre boîte email pour confirmer votre inscription.");
+                }
             } else {
                 const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
                 if (error) alert(error.message); else checkSession();
