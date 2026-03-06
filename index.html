@@ -28,13 +28,14 @@
                 </div>
                 <div id="standard-auth-fields" class="space-y-4">
                     <input type="email" id="login-email" placeholder="Email" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
-                    <input type="password" id="login-password" placeholder="Mot de passe" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
-                    
-                    <div class="text-right px-2">
-                        <button onclick="handleForgotPassword()" class="text-xs font-semibold text-emerald-600 hover:underline">Mot de passe oublié ?</button>
+                    <div class="space-y-2">
+                        <input type="password" id="login-password" placeholder="Mot de passe" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                        <div class="flex justify-end px-1">
+                            <button onclick="handleForgotPassword()" class="text-sm font-bold text-emerald-600 hover:text-emerald-700">Mot de passe oublié ?</button>
+                        </div>
                     </div>
                 </div>
-                <div class="flex flex-col gap-3 mt-4">
+                <div class="flex flex-col gap-3 mt-6">
                     <button onclick="handleLogin()" id="btn-login" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg">Se connecter</button>
                     <button onclick="toggleAuthMode()" class="w-full py-4 bg-white border-2 border-emerald-600 text-emerald-600 rounded-2xl font-bold">Créer un compte</button>
                 </div>
@@ -224,7 +225,7 @@
             document.getElementById('liste-actions').innerHTML = '';
             const shareBtn = document.getElementById('btn-share-inline');
             if (liste) {
-                document.getElementById('edit-id').value = listId = liste.id;
+                document.getElementById('edit-id').value = liste.id;
                 document.getElementById('input-titre').value = liste.titre;
                 document.getElementById('input-desc').value = liste.description;
                 document.getElementById('input-type').value = liste.type_don;
@@ -271,7 +272,7 @@
 
         async function handleForgotPassword() {
             const email = document.getElementById('login-email').value;
-            if (!email) return alert("Veuillez saisir votre email d'abord.");
+            if (!email) return alert("Veuillez saisir votre email d'abord dans le champ Email.");
             const { error } = await _supabase.auth.resetPasswordForEmail(email);
             if (error) alert(error.message); else alert("Lien de réinitialisation envoyé ! Vérifiez vos emails.");
         }
