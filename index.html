@@ -9,9 +9,7 @@
     <style>
         .card-gradient { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); }
         .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-        .animate-pulse-slow { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         @media (max-width: 640px) { .input-responsive { font-size: 16px !important; } }
     </style>
@@ -177,16 +175,19 @@
             grid.innerHTML = '';
             data.projets.forEach(p => {
                 const cleanUrl = p.url.trim();
-                // NOUVELLE SOLUTION : Thum.io pour une capture fiable et rapide
-                const captureUrl = `https://image.thum.io/get/width/600/crop/800/noanimate/${cleanUrl}`;
-                
+                let domain = "";
+                try { domain = new URL(cleanUrl).hostname.replace('www.', ''); } catch(e) { domain = "Lien"; }
+                const faviconUrl = `https://www.google.com/s2/favicons?domain=${cleanUrl}&sz=128`;
+
                 grid.innerHTML += `
                     <div class="card-gradient p-5 rounded-[2.5rem] shadow-sm border border-emerald-50 flex flex-col animate-fade-in">
-                        <div class="w-full h-44 bg-gray-100 rounded-3xl mb-4 overflow-hidden border flex items-center justify-center relative">
-                            <img src="${captureUrl}" class="w-full h-full object-cover object-top opacity-0 transition-opacity duration-300 z-10" onload="this.style.opacity='1'; this.nextElementSibling.style.display='none'">
-                            <div class="absolute inset-0 flex flex-col items-center justify-center space-y-2 animate-pulse-slow">
-                                <div class="w-8 h-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
-                                <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Chargement photo...</span>
+                        <div class="w-full h-44 bg-emerald-600 rounded-3xl mb-4 overflow-hidden relative flex items-center justify-center shadow-inner">
+                            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                            <div class="flex flex-col items-center gap-3 z-10">
+                                <div class="w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-3">
+                                    <img src="${faviconUrl}" class="w-full h-full object-contain" alt="logo">
+                                </div>
+                                <span class="text-white font-bold text-xs uppercase tracking-widest bg-emerald-700/50 px-3 py-1 rounded-full">${domain}</span>
                             </div>
                         </div>
                         <a href="${cleanUrl}" target="_blank" class="w-full py-4 mb-4 bg-emerald-600 text-white rounded-2xl text-center font-bold shadow-md">Participer</a>
@@ -216,6 +217,7 @@
                 document.getElementById('input-titre').value = liste.titre;
                 document.getElementById('input-desc').value = liste.description;
                 document.getElementById('input-type').value = liste.type_don;
+                // ON AFFICHE LE BOUTON ICI
                 shareBtn.classList.remove('hidden');
                 liste.projets.forEach(p => ajouterLigne(p.nom, p.url));
             } else {
@@ -234,8 +236,20 @@
             });
             const id = document.getElementById('edit-id').value;
             const payload = { user_id: currentUserId, titre: document.getElementById('input-titre').value, description: document.getElementById('input-desc').value, type_don: document.getElementById('input-type').value, projets: projects };
-            const { error } = id ? await _supabase.from('listes_dons').update(payload).eq('id', id) : await _supabase.from('listes_dons').insert([payload]);
-            if (error) alert(error.message); else retourDashboard();
+            const { data, error } = id ? 
+                await _supabase.from('listes_dons').update(payload).eq('id', id).select() : 
+                await _supabase.from('listes_dons').insert([payload]).select();
+            
+            if (error) alert(error.message); 
+            else {
+                // Après sauvegarde, on reste dans l'éditeur mais on affiche le bouton partager si c'est une création
+                if(data && data[0]) {
+                    document.getElementById('edit-id').value = data[0].id;
+                    document.getElementById('btn-share-inline').classList.remove('hidden');
+                }
+                alert("Enregistré avec succès !");
+                retourDashboard();
+            }
         }
 
         async function handleLogin() {
@@ -269,3 +283,4 @@
     </script>
 </body>
 </html>
+
