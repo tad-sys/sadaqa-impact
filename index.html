@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sadaqa Impact - Mes Collectes</title>
+    <title>Sadaqa Impact - Ma liste de dons multi-sites</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -12,12 +12,103 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         @media (max-width: 640px) { .input-responsive { font-size: 16px !important; } }
+        
+        .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 18px; height: 18px; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: none; }
+        .toast { background: #1e293b; color: white; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; margin-top: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        .dragging { opacity: 0.5; transform: scale(0.98); border: 2px solid #10b981 !important; }
+        .action-item, .list-card { cursor: move; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .example-badge { background: #fee2e2; color: #b91c1c; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 99px; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen font-sans text-gray-900 overflow-x-hidden">
 
-    <section id="vue-login" class="min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-md w-full bg-white rounded-[2.5rem] shadow-xl p-8 sm:p-10 animate-fade-in border border-emerald-50 text-center">
+    <div id="toast-container"></div>
+
+    <section id="app-home" class="hidden">
+        <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-[100] border-b border-gray-100">
+            <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+                <div class="text-xl font-black text-emerald-700">🌙 Sadaqa Impact</div>
+                <button onclick="showLogin()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-md">Se connecter</button>
+            </div>
+        </nav>
+
+        <header class="bg-white py-16 px-6 text-center">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <h1 class="text-4xl sm:text-6xl font-black text-gray-900 tracking-tight">Regroupez toutes vos collectes en <span class="text-emerald-600">une seule liste.</span></h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">Le premier service 100% gratuit pour créer et partager une liste de dons multi-sites. Simplifiez la générosité pour vos proches.</p>
+                <div class="flex flex-wrap justify-center gap-4 pt-4">
+                    <button onclick="showLogin(true)" class="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-bold shadow-xl text-lg hover:scale-105 transition-transform">Créer ma liste gratuite</button>
+                    <button onclick="document.getElementById('pourquoi').scrollIntoView({behavior:'smooth'})" class="bg-white border-2 border-gray-100 text-gray-600 px-8 py-4 rounded-2xl font-bold text-lg">En savoir plus</button>
+                </div>
+                <div class="pt-8 flex justify-center items-center gap-8 opacity-50 grayscale">
+                    <span class="font-bold">CotizUp</span>
+                    <span class="font-bold">GoFundMe</span>
+                    <span class="font-bold">HelloAsso</span>
+                </div>
+            </div>
+        </header>
+
+        <section id="pourquoi" class="py-20 px-6 bg-gray-50">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-gray-900">Quand utiliser Sadaqa Impact ?</h2>
+                    <p class="text-gray-500 mt-2">Une solution simple pour chaque moment de générosité.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+                        <div class="text-3xl mb-4">🕊️</div>
+                        <h3 class="text-xl font-bold mb-3">Sadaqa Jariya / Décès</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed">Regroupez les projets (puits, mosquées, orphelins) en mémoire d'un défunt pour faciliter la participation de la famille.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+                        <div class="text-3xl mb-4">✨</div>
+                        <h3 class="text-xl font-bold mb-3">Événements (Aqiqa, Mariage)</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed">Plutôt que des cadeaux matériels, proposez à vos invités de contribuer à une sélection de causes qui vous tiennent à cœur.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+                        <div class="text-3xl mb-4">🤝</div>
+                        <h3 class="text-xl font-bold mb-3">Soutien d'urgence</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed">Centralisez plusieurs collectes vérifiées pour aider une famille ou une cause spécifique de manière organisée.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20 px-6 bg-emerald-600 text-white rounded-t-[3rem] sm:rounded-t-[5rem]">
+            <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl sm:text-4xl font-black mb-6">Les avantages Sadaqa Impact</h2>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <span class="bg-white/20 p-1 rounded-full">✓</span>
+                            <div><span class="font-bold">100% Gratuit :</span> Aucune commission, aucun frais caché. Jamais.</div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-white/20 p-1 rounded-full">✓</span>
+                            <div><span class="font-bold">Multi-sites :</span> Ajoutez des liens GoFundMe, CotizUp, ou n'importe quel site de don.</div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="bg-white/20 p-1 rounded-full">✓</span>
+                            <div><span class="font-bold">Sans engagement :</span> Créez, modifiez ou supprimez vos listes en un clic.</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-white/10 p-8 rounded-[3rem] border border-white/20 backdrop-blur-sm">
+                    <blockquote class="text-xl italic font-medium">"Enfin un moyen simple de présenter tous les projets de l'association sur une seule page propre."</blockquote>
+                    <p class="mt-4 font-bold text-emerald-200">— Association Solidarité</p>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <section id="vue-login" class="hidden min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-white rounded-[2.5rem] shadow-xl p-8 sm:p-10 animate-fade-in border border-emerald-50 text-center relative">
+            <button onclick="location.reload()" class="absolute top-6 left-6 text-gray-400">← Accueil</button>
             <div class="text-4xl mb-4">🌙</div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-emerald-800 mb-2">Sadaqa Impact</h1>
             <p class="text-gray-500 mb-8 font-medium">Gérez vos collectes de dons</p>
@@ -41,7 +132,9 @@
                     </div>
                 </div>
                 <div class="flex flex-col gap-3 mt-6">
-                    <button onclick="authAction()" id="btn-main-auth" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg">Se connecter</button>
+                    <button onclick="authAction()" id="btn-main-auth" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg flex items-center justify-center">
+                        <span id="label-auth">Se connecter</span>
+                    </button>
                     <button onclick="toggleAuthMode()" id="btn-switch-auth" class="w-full py-4 bg-white border-2 border-emerald-600 text-emerald-600 rounded-2xl font-bold">Créer un compte</button>
                 </div>
             </div>
@@ -61,7 +154,13 @@
                     <h2 class="text-2xl sm:text-3xl font-black text-gray-800 tracking-tight">Mes Listes</h2>
                     <p id="user-welcome" class="text-gray-500 text-xs font-medium"></p>
                 </div>
-                <button onclick="ouvrirEditeur()" class="bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold shadow-lg">+ Nouvelle liste</button>
+                <div class="flex items-center gap-3">
+                    <select id="filter-date" onchange="chargerMesListes()" class="p-3 bg-white border rounded-xl text-xs font-bold outline-none">
+                        <option value="desc">Plus récentes</option>
+                        <option value="asc">Plus anciennes</option>
+                    </select>
+                    <button onclick="ouvrirEditeur()" class="bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold shadow-lg">+ Nouvelle liste</button>
+                </div>
             </div>
             <div id="container-listes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </main>
@@ -73,7 +172,7 @@
                 <button onclick="retourDashboard()" class="text-gray-400 font-bold">← Retour</button>
                 <div class="flex gap-2">
                     <button id="btn-share-inline" onclick="copierLienDepuisEditeur()" class="hidden bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl font-bold text-sm">🔗 Partager</button>
-                    <button onclick="sauvegarderListe()" class="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold shadow-md">Enregistrer</button>
+                    <button onclick="sauvegarderListe()" id="btn-save" class="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold shadow-md flex items-center justify-center">Enregistrer</button>
                 </div>
             </div>
         </nav>
@@ -82,25 +181,34 @@
             <div class="space-y-4">
                 <input type="text" id="input-titre" placeholder="Titre de la collecte" class="input-responsive text-2xl font-bold w-full outline-none border-b focus:border-emerald-500 pb-2">
                 
-                <select id="input-type" class="w-full p-4 bg-emerald-50 rounded-2xl text-emerald-800 font-bold outline-none">
-                    <option value="Sadaqa Jariya">Sadaqa Jariya</option>
-                    <option value="Zakat Al Maal">Zakat Al Maal</option>
-                    <option value="Sadaqa">Sadaqa</option>
-                    <option value="Construction Mosquée">Construction Mosquée</option>
-                    <option value="Puits & Eau">Puits & Eau</option>
-                    <option value="Aide Alimentaire">Aide Alimentaire</option>
-                    <option value="Orphelins">Orphelins</option>
-                    <option value="Autre">Autre</option>
-                </select>
+                <div class="grid grid-cols-2 gap-3">
+                    <select id="input-type" class="w-full p-4 bg-emerald-50 rounded-2xl text-emerald-800 font-bold outline-none">
+                        <option value="Sadaqa Jariya">Sadaqa Jariya</option>
+                        <option value="Zakat Al Maal">Zakat Al Maal</option>
+                        <option value="Sadaqa">Sadaqa</option>
+                        <option value="Construction Mosquée">Construction Mosquée</option>
+                        <option value="Puits & Eau">Puits & Eau</option>
+                        <option value="Aide Alimentaire">Aide Alimentaire</option>
+                        <option value="Orphelins">Orphelins</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                    <select id="input-color" class="w-full p-4 bg-gray-50 rounded-2xl text-gray-700 font-bold outline-none">
+                        <option value="emerald">Vert Émeraude</option>
+                        <option value="blue">Bleu Royal</option>
+                        <option value="indigo">Indigo</option>
+                        <option value="pink">Rose</option>
+                        <option value="orange">Orange</option>
+                        <option value="red">Rouge</option>
+                        <option value="purple">Violet</option>
+                    </select>
+                </div>
 
                 <textarea id="input-desc" placeholder="Message aux donateurs..." class="input-responsive w-full p-4 bg-gray-50 rounded-[2rem] outline-none" rows="4"></textarea>
             </div>
             <div class="space-y-4">
-                <h3 class="font-bold text-lg text-gray-800">Actions de dons</h3>
+                <h3 class="font-bold text-lg text-gray-800">Actions de dons (Glissez pour réorganiser)</h3>
                 <div id="liste-actions" class="space-y-4"></div>
-                <button onclick="ajouterLigne()" class="w-full py-4 border-2 border-dashed border-emerald-200 text-emerald-600 font-bold rounded-2xl hover:bg-emerald-50 transition-colors">
-                    + Ajouter une action
-                </button>
+                <button onclick="ajouterLigne()" class="w-full py-4 border-2 border-dashed border-emerald-200 text-emerald-600 font-bold rounded-2xl hover:bg-emerald-50 transition-colors">+ Ajouter une action</button>
             </div>
         </main>
     </div>
@@ -115,7 +223,7 @@
         </nav>
         <main class="max-w-5xl mx-auto p-4 sm:p-6 space-y-12 py-16">
             <div class="text-center space-y-4 animate-fade-in">
-                <span id="pub-badge" class="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800"></span>
+                <span id="pub-badge" class="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase"></span>
                 <h1 id="pub-titre" class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight"></h1>
                 <p id="pub-desc" class="max-w-2xl mx-auto text-gray-600"></p>
             </div>
@@ -130,39 +238,140 @@
         let currentUserId = null;
         let isRegisterMode = false;
 
+        const colorMap = { emerald: "bg-emerald-100 text-emerald-800", blue: "bg-blue-100 text-blue-800", indigo: "bg-indigo-100 text-indigo-800", pink: "bg-pink-100 text-pink-800", orange: "bg-orange-100 text-orange-800", red: "bg-red-100 text-red-800", purple: "bg-purple-100 text-purple-800" };
+        const bgMap = { emerald: "bg-emerald-600", blue: "bg-blue-600", indigo: "bg-indigo-600", pink: "bg-pink-600", orange: "bg-orange-600", red: "bg-red-600", purple: "bg-purple-600" };
+
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
         function togglePasswordVisibility() {
             const pwdInput = document.getElementById('login-password');
             const pwdIcon = document.getElementById('pwd-icon');
-            if (pwdInput.type === 'password') {
-                pwdInput.type = 'text';
-                pwdIcon.innerText = '🙈';
-            } else {
-                pwdInput.type = 'password';
-                pwdIcon.innerText = '👁️';
-            }
+            pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
+            pwdIcon.innerText = pwdInput.type === 'password' ? '👁️' : '🙈';
         }
 
-        function cacherToutesVues() {
-            ['vue-login', 'app-dashboard', 'app-editor', 'app-public'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            document.getElementById('nav-aperçu').classList.add('hidden');
-        }
-
-        function retourDashboard() {
+        function showLogin(register = false) {
             cacherToutesVues();
-            document.getElementById('app-dashboard').classList.remove('hidden');
-            chargerMesListes();
+            document.getElementById('vue-login').classList.remove('hidden');
+            if(register && !isRegisterMode) toggleAuthMode();
+        }
+
+        const enableDragAndDrop = (containerId, selector) => {
+            const container = document.getElementById(containerId);
+            if(!container) return;
+            container.addEventListener('dragover', e => {
+                e.preventDefault();
+                const draggable = document.querySelector('.dragging');
+                const afterElement = getDragAfterElement(container, e.clientY, selector);
+                if (afterElement == null) container.appendChild(draggable);
+                else container.insertBefore(draggable, afterElement);
+            });
+        };
+
+        function getDragAfterElement(container, y, selector) {
+            const draggableElements = [...container.querySelectorAll(`${selector}:not(.dragging)`)];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+                else return closest;
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function ajouterLigne(nom = '', url = '') {
+            const div = document.createElement('div');
+            div.className = "action-item flex flex-col gap-2 p-4 bg-gray-50 rounded-[1.5rem] border border-dashed border-gray-300 relative animate-fade-in";
+            div.draggable = true;
+            div.addEventListener('dragstart', () => div.classList.add('dragging'));
+            div.addEventListener('dragend', () => div.classList.remove('dragging'));
+            div.innerHTML = `<button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1 border shadow-sm z-10">✕</button><input type="text" placeholder="Nom" class="action-nom input-responsive w-full p-3 border rounded-xl" value="${nom}"><input type="text" placeholder="Lien" class="action-url input-responsive w-full p-3 border rounded-xl" value="${url}">`;
+            document.getElementById('liste-actions').appendChild(div);
+        }
+
+        async function authAction() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('btn-main-auth');
+            const label = document.getElementById('label-auth');
+            if (!email || !password) return showToast("Veuillez remplir les champs");
+            btn.disabled = true;
+            label.innerHTML = `<span class="spinner"></span> Chargement...`;
+            if (isRegisterMode) {
+                const { data, error } = await _supabase.auth.signUp({ email, password });
+                if (error) alert(error.message); else if (data.session) checkSession(); else showToast("Vérifiez vos emails !");
+            } else {
+                const { error } = await _supabase.auth.signInWithPassword({ email, password });
+                if (error) alert(error.message); else checkSession();
+            }
+            btn.disabled = false;
+            label.innerText = isRegisterMode ? "S'inscrire" : "Se connecter";
+        }
+
+        async function sauvegarderListe() {
+            const btn = document.getElementById('btn-save');
+            const projects = [];
+            document.querySelectorAll('.action-item').forEach(item => {
+                const nom = item.querySelector('.action-nom').value;
+                const url = item.querySelector('.action-url').value;
+                if(nom && url) projects.push({ nom: nom.trim(), url: url.trim() });
+            });
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner"></span> Sauvegarde...`;
+            const id = document.getElementById('edit-id').value;
+            const payload = { user_id: currentUserId, titre: document.getElementById('input-titre').value, description: document.getElementById('input-desc').value, type_don: document.getElementById('input-type').value, color: document.getElementById('input-color').value, projets: projects };
+            const { error } = id ? await _supabase.from('listes_dons').update(payload).eq('id', id) : await _supabase.from('listes_dons').insert([payload]);
+            if (error) alert(error.message); else { showToast("Enregistré !"); retourDashboard(); }
+            btn.disabled = false;
+            btn.innerText = "Enregistrer";
         }
 
         async function chargerMesListes() {
-            const { data } = await _supabase.from('listes_dons').select('*').eq('user_id', currentUserId).order('created_at', { ascending: false });
+            const order = document.getElementById('filter-date').value;
+            const { data } = await _supabase.from('listes_dons').select('*').eq('user_id', currentUserId).order('created_at', { ascending: (order === 'asc') });
             const container = document.getElementById('container-listes');
             container.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div class="list-card bg-white p-6 rounded-[2.5rem] shadow-sm border-2 border-dashed border-emerald-200 opacity-80 relative">
+                    <span class="absolute -top-3 left-6 example-badge">MODE EXEMPLE</span>
+                    <div class="mb-6">
+                        <h3 class="font-bold text-xl mb-1 line-clamp-2 pr-10">Exemple de collecte</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="${colorMap.emerald} text-[10px] font-black uppercase px-2 py-0.5 rounded-full inline-block">Sadaqa</span>
+                            <span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-full inline-block">Aujourd'hui</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-emerald-600 font-bold mb-4">Créez votre première liste pour remplacer cet exemple !</p>
+                    <button onclick='ouvrirEditeur()' class="w-full bg-emerald-600 text-white py-3.5 rounded-2xl text-xs font-bold">Commencer ma liste</button>
+                </div>`;
+                return;
+            }
+
             data.forEach(liste => {
+                const dateStr = new Date(liste.created_at).toLocaleDateString('fr-FR');
+                const badgeColor = colorMap[liste.color] || colorMap.emerald;
                 const div = document.createElement('div');
-                div.className = "bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 animate-fade-in relative";
+                div.className = "list-card bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 animate-fade-in relative";
+                div.draggable = true;
+                div.addEventListener('dragstart', () => div.classList.add('dragging'));
+                div.addEventListener('dragend', () => div.classList.remove('dragging'));
                 div.innerHTML = `
-                    <button onclick="supprimerListe('${liste.id}')" class="absolute top-6 right-6 text-red-400 hover:text-red-600 transition-colors">🗑️</button>
-                    <div class="mb-6"><h3 class="font-bold text-xl mb-1 line-clamp-2 pr-10">${liste.titre || 'Sans titre'}</h3><p class="text-emerald-600 text-[10px] font-black uppercase">${liste.type_don}</p></div>
+                    <button onclick="supprimerListe('${liste.id}')" class="absolute top-6 right-6 text-red-400">🗑️</button>
+                    <div class="mb-6">
+                        <h3 class="font-bold text-xl mb-1 line-clamp-2 pr-10">${liste.titre || 'Sans titre'}</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="${badgeColor} text-[10px] font-black uppercase px-2 py-0.5 rounded-full inline-block">${liste.type_don}</span>
+                            <span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-full inline-block">Créé le ${dateStr}</span>
+                        </div>
+                    </div>
                     <div class="flex flex-col gap-2">
                         <button onclick='chargerVuePublique("${liste.id}", true)' class="w-full bg-blue-600 text-white py-3.5 rounded-2xl text-xs font-bold">👁️ Voir l'aperçu</button>
                         <div class="flex gap-2">
@@ -174,165 +383,66 @@
             });
         }
 
-        async function supprimerListe(id) {
-            if(confirm("Supprimer cette liste ?")) {
-                const { error } = await _supabase.from('listes_dons').delete().eq('id', id);
-                if (error) alert(error.message); else chargerMesListes();
-            }
-        }
-
-        function copierLien(id) {
-            const url = `${window.location.origin}${window.location.pathname}?list=${id}`;
-            navigator.clipboard.writeText(url).then(() => alert("Lien copié !"));
-        }
-
-        function copierLienDepuisEditeur() {
-            const id = document.getElementById('edit-id').value;
-            if (id) copierLien(id);
-        }
-
         async function chargerVuePublique(id, estApercu = false) {
             const { data } = await _supabase.from('listes_dons').select('*').eq('id', id).single();
             if (!data) return;
             cacherToutesVues();
             document.getElementById('app-public').classList.remove('hidden');
             if(estApercu) document.getElementById('nav-aperçu').classList.remove('hidden');
+            const mainColorClass = colorMap[data.color] || colorMap.emerald;
+            const btnColorClass = bgMap[data.color] || bgMap.emerald;
+            document.getElementById('pub-badge').innerText = data.type_don;
+            document.getElementById('pub-badge').className = `px-4 py-1.5 rounded-full text-[10px] font-bold uppercase ${mainColorClass}`;
             document.getElementById('pub-titre').innerText = data.titre;
             document.getElementById('pub-desc').innerText = data.description;
-            document.getElementById('pub-badge').innerText = data.type_don;
-            
             const grid = document.getElementById('pub-grid');
             grid.innerHTML = '';
             data.projets.forEach(p => {
                 const cleanUrl = p.url.trim();
-                let domain = "";
-                try { domain = new URL(cleanUrl).hostname.replace('www.', ''); } catch(e) { domain = "Lien"; }
-                const faviconUrl = `https://www.google.com/s2/favicons?domain=${cleanUrl}&sz=128`;
-
-                grid.innerHTML += `
-                    <div class="card-gradient p-5 rounded-[2.5rem] shadow-sm border border-emerald-50 flex flex-col animate-fade-in">
-                        <div class="w-full h-44 bg-emerald-600 rounded-3xl mb-4 overflow-hidden relative flex items-center justify-center shadow-inner">
-                            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-                            <div class="flex flex-col items-center gap-3 z-10">
-                                <div class="w-16 h-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-3">
-                                    <img src="${faviconUrl}" class="w-full h-full object-contain" alt="logo">
-                                </div>
-                                <span class="text-white font-bold text-xs uppercase tracking-widest bg-emerald-700/50 px-3 py-1 rounded-full">${domain}</span>
-                            </div>
-                        </div>
-                        <a href="${cleanUrl}" target="_blank" class="w-full py-4 mb-4 bg-emerald-600 text-white rounded-2xl text-center font-bold shadow-md">Participer</a>
-                        <h3 class="text-xl font-bold text-gray-800 line-clamp-2 h-[3rem] flex items-center">${p.nom}</h3>
-                    </div>`;
+                const photoUrl = `https://image.thum.io/get/width/600/crop/800/noanimate/viewportWidth/1200/${cleanUrl}`;
+                grid.innerHTML += `<div class="card-gradient p-5 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col animate-fade-in overflow-hidden"><div class="w-full h-44 bg-gray-100 rounded-3xl mb-4 overflow-hidden relative flex items-center justify-center shadow-inner border border-gray-200"><div class="absolute inset-0 flex items-center justify-center bg-gray-50 z-0"><div class="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div><img src="${photoUrl}" class="w-full h-full object-cover object-top opacity-0 transition-opacity duration-300 z-10" onload="this.style.opacity='1'"></div><a href="${cleanUrl}" target="_blank" class="w-full py-4 mb-4 ${btnColorClass} text-white rounded-2xl text-center font-bold">Participer</a><h3 class="text-xl font-bold text-gray-800 line-clamp-2 h-[3rem]">${p.nom}</h3></div>`;
             });
-        }
-
-        function ajouterLigne(nom = '', url = '') {
-            const div = document.createElement('div');
-            div.className = "action-item flex flex-col gap-2 p-4 bg-gray-50 rounded-[1.5rem] border border-dashed border-gray-300 relative animate-fade-in";
-            div.innerHTML = `
-                <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1 border shadow-sm">✕</button>
-                <input type="text" placeholder="Nom du projet" class="action-nom input-responsive w-full p-3 bg-white border rounded-xl outline-none" value="${nom}">
-                <input type="text" placeholder="Lien URL (https://...)" class="action-url input-responsive w-full p-3 bg-white border rounded-xl outline-none" value="${url}">
-            `;
-            document.getElementById('liste-actions').appendChild(div);
         }
 
         function ouvrirEditeur(liste = null) {
             cacherToutesVues();
             document.getElementById('app-editor').classList.remove('hidden');
             document.getElementById('liste-actions').innerHTML = '';
-            const shareBtn = document.getElementById('btn-share-inline');
             if (liste) {
                 document.getElementById('edit-id').value = liste.id;
                 document.getElementById('input-titre').value = liste.titre;
                 document.getElementById('input-desc').value = liste.description;
                 document.getElementById('input-type').value = liste.type_don;
-                shareBtn.classList.remove('hidden');
+                document.getElementById('input-color').value = liste.color || "emerald";
+                document.getElementById('btn-share-inline').classList.remove('hidden');
                 liste.projets.forEach(p => ajouterLigne(p.nom, p.url));
-            } else {
-                document.getElementById('edit-id').value = '';
-                shareBtn.classList.add('hidden');
-                ajouterLigne();
-            }
+            } else { document.getElementById('edit-id').value = ''; document.getElementById('input-color').value = "emerald"; document.getElementById('btn-share-inline').classList.add('hidden'); ajouterLigne(); }
         }
 
-        async function sauvegarderListe() {
-            const projects = [];
-            document.querySelectorAll('.action-item').forEach(item => {
-                const nom = item.querySelector('.action-nom').value;
-                const url = item.querySelector('.action-url').value;
-                if(nom && url) projects.push({ nom: nom.trim(), url: url.trim() });
-            });
-            const id = document.getElementById('edit-id').value;
-            const payload = { user_id: currentUserId, titre: document.getElementById('input-titre').value, description: document.getElementById('input-desc').value, type_don: document.getElementById('input-type').value, projets: projects };
-            const { data, error } = id ? 
-                await _supabase.from('listes_dons').update(payload).eq('id', id).select() : 
-                await _supabase.from('listes_dons').insert([payload]).select();
-            
-            if (error) alert(error.message); 
-            else {
-                if(data && data[0]) {
-                    document.getElementById('edit-id').value = data[0].id;
-                    document.getElementById('btn-share-inline').classList.remove('hidden');
-                }
-                alert("Enregistré avec succès !");
-                retourDashboard();
-            }
-        }
-
-        async function authAction() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            if (!email || !password) return alert("Veuillez remplir les champs.");
-
-            if (isRegisterMode) {
-                const { data, error } = await _supabase.auth.signUp({ email, password });
-                if (error) {
-                    alert(error.message);
-                } else if (data.user && data.session) {
-                    checkSession(); // Connexion directe si possible
-                } else {
-                    alert("Compte créé ! Veuillez vérifier votre boîte email pour confirmer votre inscription.");
-                }
-            } else {
-                const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-                if (error) alert(error.message); else checkSession();
-            }
-        }
-
-        async function handleForgotPassword() {
-            const email = document.getElementById('login-email').value;
-            if (!email) return alert("Saisissez votre email d'abord.");
-            const { error } = await _supabase.auth.resetPasswordForEmail(email);
-            if (error) alert(error.message); else alert("Lien envoyé par email !");
-        }
-
-        function toggleAuthMode() {
-            isRegisterMode = !isRegisterMode;
-            document.getElementById('register-fields').classList.toggle('hidden');
-            document.getElementById('btn-main-auth').innerText = isRegisterMode ? "S'inscrire" : "Se connecter";
-            document.getElementById('btn-switch-auth').innerText = isRegisterMode ? "Déjà un compte ? Connexion" : "Créer un compte";
-        }
-
-        async function checkSession() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const listId = urlParams.get('list');
-            if (listId) { chargerVuePublique(listId); } 
-            else {
-                const { data: { session } } = await _supabase.auth.getSession();
-                if (session) { 
-                    currentUserId = session.user.id; 
-                    document.getElementById('user-welcome').innerText = session.user.email; 
-                    retourDashboard(); 
-                } else { 
-                    cacherToutesVues(); 
-                    document.getElementById('vue-login').classList.remove('hidden'); 
-                }
-            }
+        function copierLien(id) { const url = `${window.location.origin}${window.location.pathname}?list=${id}`; navigator.clipboard.writeText(url).then(() => showToast("Lien copié !")); }
+        function copierLienDepuisEditeur() { const id = document.getElementById('edit-id').value; if(id) copierLien(id); }
+        function cacherToutesVues() { ['app-home', 'vue-login', 'app-dashboard', 'app-editor', 'app-public'].forEach(id => document.getElementById(id).classList.add('hidden')); document.getElementById('nav-aperçu').classList.add('hidden'); }
+        function retourDashboard() { cacherToutesVues(); document.getElementById('app-dashboard').classList.remove('hidden'); chargerMesListes(); }
+        async function supprimerListe(id) { if(confirm("Supprimer ?")) { await _supabase.from('listes_dons').delete().eq('id', id); chargerMesListes(); } }
+        async function handleForgotPassword() { const email = document.getElementById('login-email').value; if (!email) return showToast("Email manquant"); const { error } = await _supabase.auth.resetPasswordForEmail(email); if (error) alert(error.message); else showToast("Email envoyé"); }
+        function toggleAuthMode() { isRegisterMode = !isRegisterMode; document.getElementById('register-fields').classList.toggle('hidden'); document.getElementById('btn-main-auth').innerText = isRegisterMode ? "S'inscrire" : "Se connecter"; document.getElementById('btn-switch-auth').innerText = isRegisterMode ? "Déjà un compte ?" : "Créer un compte"; }
+        
+        async function checkSession() { 
+            const urlParams = new URLSearchParams(window.location.search); 
+            if (urlParams.get('list')) { chargerVuePublique(urlParams.get('list')); } 
+            else { 
+                const { data: { session } } = await _supabase.auth.getSession(); 
+                if (session) { currentUserId = session.user.id; document.getElementById('user-welcome').innerText = session.user.email; retourDashboard(); } 
+                else { cacherToutesVues(); document.getElementById('app-home').classList.remove('hidden'); } 
+            } 
         }
         function handleLogout() { _supabase.auth.signOut().then(() => location.reload()); }
-        window.onload = checkSession;
+        
+        window.onload = () => {
+            checkSession();
+            enableDragAndDrop('liste-actions', '.action-item');
+            enableDragAndDrop('container-listes', '.list-card');
+        };
     </script>
 </body>
 </html>
-
