@@ -10,132 +10,96 @@
         .card-gradient { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); }
         .animate-fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        @media (max-width: 640px) { .input-responsive { font-size: 16px !important; } }
-        
-        .spinner { border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 2px solid #fff; width: 18px; height: 18px; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: none; }
         .toast { background: #1e293b; color: white; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; margin-top: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
         .toast.show { opacity: 1; transform: translateY(0); }
 
-        .dragging { opacity: 0.5; transform: scale(0.98); border: 2px solid #10b981 !important; }
-        .action-item, .list-card { cursor: move; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .example-badge { background: #fee2e2; color: #b91c1c; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 99px; }
+        .progress-container { height: 8px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+        .progress-bar { height: 100%; transition: width 0.5s ease; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen font-sans text-gray-900 overflow-x-hidden">
 
     <div id="toast-container"></div>
 
+    <div id="modal-don" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-fade-in relative text-center">
+            <button onclick="document.getElementById('modal-don').classList.add('hidden')" class="absolute top-6 right-6 text-gray-400">✕</button>
+            <h3 class="text-2xl font-black mb-2">Soutenir ce projet</h3>
+            <p id="modal-target-name" class="text-emerald-600 font-bold mb-6"></p>
+            <div id="modal-step-1" class="space-y-4 text-left">
+                <input type="number" id="don-montant" placeholder="Montant du don (€)" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 font-bold text-xl">
+                <button id="btn-modal-confirm" onclick="ouvrirPaiementDirect()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg">Confirmer le montant</button>
+            </div>
+            <div id="modal-step-2" class="hidden space-y-4">
+                <p class="text-gray-500">Finalisez sur le service de paiement :</p>
+                <a id="modal-pay-link" target="_blank" class="block w-full py-4 bg-blue-600 text-white rounded-2xl font-bold">Ouvrir le service de paiement</a>
+                <button onclick="validerDonFinal()" class="w-full py-3 border-2 border-emerald-600 text-emerald-600 rounded-2xl font-bold text-sm">J'ai terminé mon paiement</button>
+            </div>
+        </div>
+    </div>
+
     <section id="app-home" class="hidden">
         <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-[100] border-b border-gray-100">
             <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
                 <div class="text-xl font-black text-emerald-700">🌙 Sadaqa Impact</div>
-                <button onclick="showLogin()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-md">Se connecter</button>
+                <button onclick="showLogin()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-full text-sm font-bold">Se connecter</button>
             </div>
         </nav>
-
-        <header class="bg-white py-16 px-6 text-center">
+        
+        <header class="bg-white py-20 px-6 text-center border-b">
             <div class="max-w-4xl mx-auto space-y-6">
-                <h1 class="text-4xl sm:text-6xl font-black text-gray-900 tracking-tight">Regroupez toutes vos collectes en <span class="text-emerald-600">une seule liste.</span></h1>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">Le premier service 100% gratuit pour créer et partager une liste de dons multi-sites. Simplifiez la générosité pour vos proches.</p>
-                <div class="flex flex-wrap justify-center gap-4 pt-4">
-                    <button onclick="showLogin(true)" class="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-bold shadow-xl text-lg hover:scale-105 transition-transform">Créer ma liste gratuite</button>
-                    <button onclick="document.getElementById('pourquoi').scrollIntoView({behavior:'smooth'})" class="bg-white border-2 border-gray-100 text-gray-600 px-8 py-4 rounded-2xl font-bold text-lg">En savoir plus</button>
-                </div>
-                <div class="pt-8 flex justify-center items-center gap-8 opacity-50 grayscale">
-                    <span class="font-bold">CotizUp</span>
-                    <span class="font-bold">GoFundMe</span>
-                    <span class="font-bold">HelloAsso</span>
-                </div>
+                <h1 class="text-5xl sm:text-7xl font-black text-gray-900 tracking-tighter">Regroupez vos collectes en <span class="text-emerald-600">une seule liste.</span></h1>
+                <p class="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">Le premier service gratuit pour centraliser et partager vos causes favorites avec vos proches.</p>
+                <button onclick="showLogin(true)" class="bg-emerald-600 text-white px-10 py-5 rounded-3xl font-bold shadow-2xl text-xl hover:scale-105 transition-transform">Créer ma liste gratuite</button>
             </div>
         </header>
 
-        <section id="pourquoi" class="py-20 px-6 bg-gray-50">
+        <section id="actions-urgentes" class="py-20 px-6 bg-white hidden border-b">
             <div class="max-w-6xl mx-auto">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl font-bold text-gray-900">Quand utiliser Sadaqa Impact ?</h2>
-                    <p class="text-gray-500 mt-2">Une solution simple pour chaque moment de générosité.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                        <div class="text-3xl mb-4">🕊️</div>
-                        <h3 class="text-xl font-bold mb-3">Sadaqa Jariya / Décès</h3>
-                        <p class="text-gray-600 text-sm leading-relaxed">Regroupez les projets (puits, mosquées, orphelins) en mémoire d'un défunt pour faciliter la participation de la famille.</p>
-                    </div>
-                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                        <div class="text-3xl mb-4">✨</div>
-                        <h3 class="text-xl font-bold mb-3">Événements (Aqiqa, Mariage)</h3>
-                        <p class="text-gray-600 text-sm leading-relaxed">Plutôt que des cadeaux matériels, proposez à vos invités de contribuer à une sélection de causes qui vous tiennent à cœur.</p>
-                    </div>
-                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                        <div class="text-3xl mb-4">🤝</div>
-                        <h3 class="text-xl font-bold mb-3">Soutien d'urgence</h3>
-                        <p class="text-gray-600 text-sm leading-relaxed">Centralisez plusieurs collectes vérifiées pour aider une famille ou une cause spécifique de manière organisée.</p>
-                    </div>
-                </div>
+                <h2 class="text-3xl font-black text-gray-900 text-center mb-12 italic">🔥 Actions prioritaires</h2>
+                <div id="home-featured-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
             </div>
         </section>
 
-        <section class="py-20 px-6 bg-emerald-600 text-white rounded-t-[3rem] sm:rounded-t-[5rem]">
-            <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h2 class="text-3xl sm:text-4xl font-black mb-6">Les avantages Sadaqa Impact</h2>
-                    <ul class="space-y-4">
-                        <li class="flex items-start gap-3">
-                            <span class="bg-white/20 p-1 rounded-full">✓</span>
-                            <div><span class="font-bold">100% Gratuit :</span> Aucune commission, aucun frais caché. Jamais.</div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="bg-white/20 p-1 rounded-full">✓</span>
-                            <div><span class="font-bold">Multi-sites :</span> Ajoutez des liens GoFundMe, CotizUp, ou n'importe quel site de don.</div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="bg-white/20 p-1 rounded-full">✓</span>
-                            <div><span class="font-bold">Sans engagement :</span> Créez, modifiez ou supprimez vos listes en un clic.</div>
-                        </li>
-                    </ul>
+        <section class="py-20 px-6 bg-gray-50">
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-gray-100">
+                    <div class="text-4xl mb-4">🕊️</div>
+                    <h3 class="text-xl font-bold mb-2">Sadaqa Jariya</h3>
+                    <p class="text-gray-500 text-sm">Regroupez des projets en mémoire d'un proche disparu.</p>
                 </div>
-                <div class="bg-white/10 p-8 rounded-[3rem] border border-white/20 backdrop-blur-sm">
-                    <blockquote class="text-xl italic font-medium">"Enfin un moyen simple de présenter tous les projets de l'association sur une seule page propre."</blockquote>
-                    <p class="mt-4 font-bold text-emerald-200">— Association Solidarité</p>
+                <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-gray-100">
+                    <div class="text-4xl mb-4">✨</div>
+                    <h3 class="text-xl font-bold mb-2">Événements</h3>
+                    <p class="text-gray-500 text-sm">Simplifiez les dons pour une Aqiqa ou un mariage.</p>
+                </div>
+                <div class="bg-white p-10 rounded-[3rem] shadow-sm border border-gray-100">
+                    <div class="text-4xl mb-4">🤝</div>
+                    <h3 class="text-xl font-bold mb-2">Entraide</h3>
+                    <p class="text-gray-500 text-sm">Vérifiez et centralisez des collectes pour une famille.</p>
                 </div>
             </div>
         </section>
     </section>
 
     <section id="vue-login" class="hidden min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-md w-full bg-white rounded-[2.5rem] shadow-xl p-8 sm:p-10 animate-fade-in border border-emerald-50 text-center relative">
-            <button onclick="location.reload()" class="absolute top-6 left-6 text-gray-400">← Accueil</button>
-            <div class="text-4xl mb-4">🌙</div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-emerald-800 mb-2">Sadaqa Impact</h1>
-            <p class="text-gray-500 mb-8 font-medium">Gérez vos collectes de dons</p>
+        <div class="max-w-md w-full bg-white rounded-[3rem] shadow-2xl p-10 text-center relative">
+            <button onclick="location.reload()" class="absolute top-8 left-8 text-gray-400">← Accueil</button>
+            <h1 class="text-3xl font-black text-emerald-800 mb-8">Sadaqa Impact</h1>
             <div class="space-y-4 text-left">
                 <div id="register-fields" class="hidden grid grid-cols-2 gap-3">
-                    <input type="text" id="reg-prenom" placeholder="Prénom" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
-                    <input type="text" id="reg-nom" placeholder="Nom" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="text" id="reg-prenom" placeholder="Prénom" class="w-full p-4 border rounded-2xl outline-none">
+                    <input type="text" id="reg-nom" placeholder="Nom" class="w-full p-4 border rounded-2xl outline-none">
                 </div>
-                <div id="standard-auth-fields" class="space-y-4">
-                    <input type="email" id="login-email" placeholder="Email" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500">
-                    <div class="space-y-2">
-                        <div class="relative">
-                            <input type="password" id="login-password" placeholder="Mot de passe" class="input-responsive w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 pr-12">
-                            <button onclick="togglePasswordVisibility()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-600 transition-colors">
-                                <span id="pwd-icon">👁️</span>
-                            </button>
-                        </div>
-                        <div class="flex justify-end px-1">
-                            <button onclick="handleForgotPassword()" class="text-sm font-bold text-emerald-600 hover:text-emerald-700">Mot de passe oublié ?</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex flex-col gap-3 mt-6">
-                    <button onclick="authAction()" id="btn-main-auth" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg flex items-center justify-center">
-                        <span id="label-auth">Se connecter</span>
-                    </button>
-                    <button onclick="toggleAuthMode()" id="btn-switch-auth" class="w-full py-4 bg-white border-2 border-emerald-600 text-emerald-600 rounded-2xl font-bold">Créer un compte</button>
+                <input type="email" id="login-email" placeholder="Email" class="w-full p-4 border rounded-2xl outline-none">
+                <input type="password" id="login-password" placeholder="Mot de passe" class="w-full p-4 border rounded-2xl outline-none">
+                <button onclick="authAction()" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold shadow-lg">Continuer</button>
+                
+                <div class="flex justify-between items-center px-2">
+                    <button onclick="toggleAuthMode()" id="btn-switch-auth" class="text-emerald-600 font-bold text-sm">Créer un compte</button>
+                    <button onclick="resetPassword()" class="text-gray-400 text-sm font-medium">Mot de passe oublié ?</button>
                 </div>
             </div>
         </div>
@@ -143,91 +107,79 @@
 
     <div id="app-dashboard" class="hidden">
         <nav class="bg-white border-b p-4 mb-6 sticky top-0 z-50">
-            <div class="max-w-5xl mx-auto flex justify-between items-center px-2">
-                <h1 class="text-lg font-bold text-emerald-700">🌙 Sadaqa Impact</h1>
-                <button onclick="handleLogout()" class="text-xs font-bold text-red-500 bg-red-50 px-3 py-2 rounded-xl">Déconnexion</button>
+            <div class="max-w-5xl mx-auto flex justify-between items-center">
+                <h1 class="font-bold text-emerald-700">🌙 Sadaqa Impact</h1>
+                <div class="flex items-center gap-3">
+                    <button id="btn-admin-access" onclick="ouvrirAdmin()" class="hidden bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold">ACCÈS ADMIN</button>
+                    <button onclick="handleLogout()" class="text-xs font-bold text-red-500 bg-red-50 px-3 py-2 rounded-xl">Déconnexion</button>
+                </div>
             </div>
         </nav>
         <main class="max-w-5xl mx-auto px-4 pb-10">
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+            <div class="flex justify-between items-center mb-8">
                 <div>
-                    <h2 class="text-2xl sm:text-3xl font-black text-gray-800 tracking-tight">Mes Listes</h2>
-                    <p id="user-welcome" class="text-gray-500 text-xs font-medium"></p>
+                    <h2 class="text-2xl font-black text-gray-800">Mes Listes</h2>
+                    <p id="user-welcome" class="text-gray-500 text-xs"></p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <select id="filter-date" onchange="chargerMesListes()" class="p-3 bg-white border rounded-xl text-xs font-bold outline-none">
-                        <option value="desc">Plus récentes</option>
-                        <option value="asc">Plus anciennes</option>
-                    </select>
-                    <button onclick="ouvrirEditeur()" class="bg-emerald-600 text-white px-6 py-4 rounded-2xl font-bold shadow-lg">+ Nouvelle liste</button>
-                </div>
+                <button onclick="ouvrirEditeur()" class="bg-emerald-600 text-white px-6 py-4 rounded-3xl font-bold shadow-lg hover:bg-emerald-700">+ Nouvelle liste</button>
             </div>
             <div id="container-listes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </main>
     </div>
 
-    <div id="app-editor" class="hidden min-h-screen bg-white">
-        <nav class="border-b p-4 sticky top-0 bg-white z-50">
-            <div class="max-w-5xl mx-auto flex justify-between items-center gap-2">
-                <button onclick="retourDashboard()" class="text-gray-400 font-bold">← Retour</button>
-                <div class="flex gap-2">
-                    <button id="btn-share-inline" onclick="copierLienDepuisEditeur()" class="hidden bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl font-bold text-sm">🔗 Partager</button>
-                    <button onclick="sauvegarderListe()" id="btn-save" class="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold shadow-md flex items-center justify-center">Enregistrer</button>
-                </div>
+    <div id="app-admin" class="hidden min-h-screen bg-gray-100">
+        <nav class="bg-purple-800 text-white p-4 sticky top-0 z-50">
+            <div class="max-w-5xl mx-auto flex justify-between items-center">
+                <button onclick="retourDashboard()" class="font-bold text-sm">← Dashboard</button>
+                <h2 class="font-black uppercase text-sm">Modération</h2>
+                <div class="w-10"></div>
             </div>
         </nav>
-        <main class="max-w-3xl mx-auto p-4 sm:p-6 space-y-6">
-            <input type="hidden" id="edit-id">
-            <div class="space-y-4">
-                <input type="text" id="input-titre" placeholder="Titre de la collecte" class="input-responsive text-2xl font-bold w-full outline-none border-b focus:border-emerald-500 pb-2">
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <select id="input-type" class="w-full p-4 bg-emerald-50 rounded-2xl text-emerald-800 font-bold outline-none">
-                        <option value="Sadaqa Jariya">Sadaqa Jariya</option>
-                        <option value="Zakat Al Maal">Zakat Al Maal</option>
-                        <option value="Sadaqa">Sadaqa</option>
-                        <option value="Construction Mosquée">Construction Mosquée</option>
-                        <option value="Puits & Eau">Puits & Eau</option>
-                        <option value="Aide Alimentaire">Aide Alimentaire</option>
-                        <option value="Orphelins">Orphelins</option>
-                        <option value="Autre">Autre</option>
-                    </select>
-                    <select id="input-color" class="w-full p-4 bg-gray-50 rounded-2xl text-gray-700 font-bold outline-none">
-                        <option value="emerald">Vert Émeraude</option>
-                        <option value="blue">Bleu Royal</option>
-                        <option value="indigo">Indigo</option>
-                        <option value="pink">Rose</option>
-                        <option value="orange">Orange</option>
-                        <option value="red">Rouge</option>
-                        <option value="purple">Violet</option>
-                    </select>
-                </div>
+        <main class="max-w-4xl mx-auto p-6">
+            <div id="admin-validation-list" class="space-y-4"></div>
+        </main>
+    </div>
 
-                <textarea id="input-desc" placeholder="Message aux donateurs..." class="input-responsive w-full p-4 bg-gray-50 rounded-[2rem] outline-none" rows="4"></textarea>
+    <div id="app-editor" class="hidden min-h-screen bg-white">
+        <nav class="border-b p-4 sticky top-0 bg-white z-50">
+            <div class="max-w-5xl mx-auto flex justify-between items-center px-2">
+                <button onclick="retourDashboard()" class="text-gray-400 font-bold">← Retour</button>
+                <button onclick="sauvegarderListe()" class="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold">Enregistrer</button>
             </div>
-            <div class="space-y-4">
-                <h3 class="font-bold text-lg text-gray-800">Actions de dons (Glissez pour réorganiser)</h3>
-                <div id="liste-actions" class="space-y-4"></div>
-                <button onclick="ajouterLigne()" class="w-full py-4 border-2 border-dashed border-emerald-200 text-emerald-600 font-bold rounded-2xl hover:bg-emerald-50 transition-colors">+ Ajouter une action</button>
+        </nav>
+        <main class="max-w-3xl mx-auto p-6 space-y-6">
+            <input type="hidden" id="edit-id">
+            <input type="text" id="input-titre" placeholder="Titre de la collecte" class="text-3xl font-black w-full outline-none border-b pb-4">
+            <textarea id="input-desc" placeholder="Message aux donateurs..." class="w-full p-4 bg-gray-50 rounded-[2rem] outline-none" rows="3"></textarea>
+            <div class="grid grid-cols-2 gap-3">
+                <select id="input-type" class="p-4 bg-emerald-50 rounded-2xl font-bold outline-none border-0">
+                    <option value="Sadaqa Jariya">Sadaqa Jariya</option>
+                    <option value="Zakat Al Maal">Zakat Al Maal</option>
+                    <option value="Construction Mosquée">Construction Mosquée</option>
+                </select>
+                <select id="input-color" class="p-4 bg-gray-50 rounded-2xl font-bold outline-none border-0">
+                    <option value="emerald">Thème Vert</option>
+                    <option value="blue">Thème Bleu</option>
+                </select>
             </div>
+            <div id="liste-actions" class="space-y-4"></div>
+            <button onclick="ajouterLigne()" class="w-full py-5 border-2 border-dashed border-emerald-200 text-emerald-600 font-bold rounded-[2rem]">+ Ajouter une action</button>
         </main>
     </div>
 
     <div id="app-public" class="hidden bg-white min-h-screen">
         <nav id="nav-aperçu" class="hidden border-b p-4 sticky top-0 bg-emerald-600 text-white z-50">
              <div class="max-w-5xl mx-auto flex justify-between items-center px-4">
-                <button onclick="retourDashboard()" class="font-bold text-sm">← Quitter</button>
-                <span class="text-xs font-bold uppercase tracking-widest">Aperçu</span>
-                <div class="w-8"></div>
+                <button onclick="retourDashboard()" class="font-bold text-sm">← Quitter l'aperçu</button>
+                <span class="text-xs font-black uppercase tracking-widest">Aperçu Visiteur</span>
+                <div class="w-10"></div>
             </div>
         </nav>
-        <main class="max-w-5xl mx-auto p-4 sm:p-6 space-y-12 py-16">
-            <div class="text-center space-y-4 animate-fade-in">
-                <span id="pub-badge" class="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase"></span>
-                <h1 id="pub-titre" class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight"></h1>
-                <p id="pub-desc" class="max-w-2xl mx-auto text-gray-600"></p>
-            </div>
-            <div id="pub-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        <main class="max-w-5xl mx-auto p-6 py-20 text-center">
+            <span id="pub-badge" class="px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest"></span>
+            <h1 id="pub-titre" class="text-4xl sm:text-6xl font-black text-gray-900 mt-6 mb-4"></h1>
+            <p id="pub-desc" class="max-w-2xl mx-auto text-lg text-gray-600 mb-16"></p>
+            <div id="pub-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 text-left"></div>
         </main>
     </div>
 
@@ -235,214 +187,256 @@
         const SUPABASE_URL = "https://qrtfsakvzlkjqueurvci.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFydGZzYWt2emxranF1ZXVydmNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MDM5MDksImV4cCI6MjA4ODI3OTkwOX0.muCLFvI4h8p8jmjOgrRNKuqkLlD2Xbx9jxZKsSjMB4g";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         let currentUserId = null;
         let isRegisterMode = false;
+        let activeActionData = null;
 
-        const colorMap = { emerald: "bg-emerald-100 text-emerald-800", blue: "bg-blue-100 text-blue-800", indigo: "bg-indigo-100 text-indigo-800", pink: "bg-pink-100 text-pink-800", orange: "bg-orange-100 text-orange-800", red: "bg-red-100 text-red-800", purple: "bg-purple-100 text-purple-800" };
-        const bgMap = { emerald: "bg-emerald-600", blue: "bg-blue-600", indigo: "bg-indigo-600", pink: "bg-pink-600", orange: "bg-orange-600", red: "bg-red-600", purple: "bg-purple-600" };
+        const colorMap = { emerald: "bg-emerald-100 text-emerald-800", blue: "bg-blue-100 text-blue-800" };
+        const bgMap = { emerald: "bg-emerald-600", blue: "bg-blue-600" };
 
         function showToast(msg) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerText = msg;
-            container.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
+            c.appendChild(t);
+            setTimeout(() => t.classList.add('show'), 10);
+            setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 3000);
         }
 
-        function togglePasswordVisibility() {
-            const pwdInput = document.getElementById('login-password');
-            const pwdIcon = document.getElementById('pwd-icon');
-            pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
-            pwdIcon.innerText = pwdInput.type === 'password' ? '👁️' : '🙈';
+        async function checkSession() { 
+            const { data: { session } } = await _supabase.auth.getSession(); 
+            if (session) { 
+                currentUserId = session.user.id; 
+                document.getElementById('user-welcome').innerText = session.user.email;
+                if (session.user.user_metadata?.role === "admin") document.getElementById('btn-admin-access').classList.remove('hidden');
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('list')) chargerVuePublique(urlParams.get('list'));
+                else retourDashboard(); 
+            } else {
+                cacherToutesVues(); document.getElementById('app-home').classList.remove('hidden'); chargerAccueil();
+            }
         }
 
-        function showLogin(register = false) {
-            cacherToutesVues();
-            document.getElementById('vue-login').classList.remove('hidden');
-            if(register && !isRegisterMode) toggleAuthMode();
+        async function resetPassword() {
+            const email = document.getElementById('login-email').value;
+            if (!email) return showToast("Saisissez votre email d'abord");
+            const { error } = await _supabase.auth.resetPasswordForEmail(email);
+            if (error) showToast("Erreur: " + error.message);
+            else showToast("Email de récupération envoyé !");
         }
 
-        const enableDragAndDrop = (containerId, selector) => {
-            const container = document.getElementById(containerId);
-            if(!container) return;
-            container.addEventListener('dragover', e => {
-                e.preventDefault();
-                const draggable = document.querySelector('.dragging');
-                const afterElement = getDragAfterElement(container, e.clientY, selector);
-                if (afterElement == null) container.appendChild(draggable);
-                else container.insertBefore(draggable, afterElement);
-            });
-        };
-
-        function getDragAfterElement(container, y, selector) {
-            const draggableElements = [...container.querySelectorAll(`${selector}:not(.dragging)`)];
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
-                if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
-                else return closest;
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        async function ouvrirAdmin() {
+            cacherToutesVues(); document.getElementById('app-admin').classList.remove('hidden');
+            const { data: listes } = await _supabase.from('listes_dons').select('*');
+            const container = document.getElementById('admin-validation-list');
+            container.innerHTML = '';
+            listes?.forEach(l => l.projets.forEach((p, idx) => {
+                if(p.featured) {
+                    const d = document.createElement('div');
+                    d.className = "bg-white p-6 rounded-[2rem] flex justify-between items-center shadow-sm border";
+                    d.innerHTML = `<div><span class="font-bold">${p.nom}</span><br><span class="text-[10px] text-gray-400 uppercase font-bold">Liste: ${l.titre}</span></div>
+                        <div class="flex gap-2">
+                            ${!p.valide ? `<button onclick="changerStatutAdmin('${l.id}', ${idx}, true)" class="bg-emerald-600 text-white px-5 py-2 rounded-xl text-xs font-bold">Accepter</button>` : `<button onclick="changerStatutAdmin('${l.id}', ${idx}, false)" class="bg-red-500 text-white px-5 py-2 rounded-xl text-xs font-bold">Retirer</button>`}
+                        </div>`;
+                    container.appendChild(d);
+                }
+            }));
         }
 
-        function ajouterLigne(nom = '', url = '') {
+        async function changerStatutAdmin(id, idx, status) {
+            const { data: l } = await _supabase.from('listes_dons').select('projets').eq('id', id).single();
+            const p = [...l.projets]; p[idx].valide = status;
+            await _supabase.from('listes_dons').update({ projets: p }).eq('id', id);
+            ouvrirAdmin();
+        }
+
+        function ajouterLigne(nom='', site='', pay='', obj=500, feat=false, val=false) {
             const div = document.createElement('div');
-            div.className = "action-item flex flex-col gap-2 p-4 bg-gray-50 rounded-[1.5rem] border border-dashed border-gray-300 relative animate-fade-in";
-            div.draggable = true;
-            div.addEventListener('dragstart', () => div.classList.add('dragging'));
-            div.addEventListener('dragend', () => div.classList.remove('dragging'));
-            div.innerHTML = `<button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1 border shadow-sm z-10">✕</button><input type="text" placeholder="Nom" class="action-nom input-responsive w-full p-3 border rounded-xl" value="${nom}"><input type="text" placeholder="Lien" class="action-url input-responsive w-full p-3 border rounded-xl" value="${url}">`;
+            div.className = "action-item p-6 bg-gray-50 rounded-[2.5rem] border relative";
+            div.innerHTML = `
+                <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1 border shadow-sm text-xs">✕</button>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <input type="text" placeholder="Nom de l'action" class="action-nom p-4 rounded-2xl border font-bold text-sm" value="${nom}">
+                    <div class="flex items-center gap-2 bg-white px-4 rounded-2xl border">
+                        <input type="checkbox" class="action-featured w-5 h-5 accent-emerald-600" ${feat?'checked':''}>
+                        <label class="text-[10px] font-black text-gray-400 uppercase">Mettre à la une</label>
+                        <input type="hidden" class="action-valide-status" value="${val}">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <input type="text" placeholder="Lien Page Info" class="action-url-site p-4 rounded-2xl border text-xs" value="${site}">
+                    <input type="text" placeholder="Lien de Paiement" class="action-url-pay p-4 rounded-2xl border text-xs" value="${pay}">
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-[10px] font-black text-gray-400 uppercase">Objectif (€) :</span>
+                    <input type="number" class="action-objectif w-full p-4 border rounded-2xl text-sm font-bold" value="${obj}">
+                </div>`;
             document.getElementById('liste-actions').appendChild(div);
+        }
+
+        async function sauvegarderListe() {
+            const projects = [];
+            document.querySelectorAll('.action-item').forEach(i => {
+                projects.push({
+                    nom: i.querySelector('.action-nom').value,
+                    url_site: i.querySelector('.action-url-site').value,
+                    url_pay: i.querySelector('.action-url-pay').value,
+                    objectif: i.querySelector('.action-objectif').value,
+                    featured: i.querySelector('.action-featured').checked,
+                    valide: i.querySelector('.action-valide-status').value === "true"
+                });
+            });
+            const id = document.getElementById('edit-id').value;
+            const payload = { 
+                user_id: currentUserId, titre: document.getElementById('input-titre').value, 
+                description: document.getElementById('input-desc').value, type_don: document.getElementById('input-type').value,
+                color: document.getElementById('input-color').value, projets: projects 
+            };
+            if(id) await _supabase.from('listes_dons').update(payload).eq('id', id);
+            else await _supabase.from('listes_dons').insert([payload]);
+            retourDashboard();
+        }
+
+        function partagerListe(id) {
+            const url = window.location.origin + window.location.pathname + '?list=' + id;
+            navigator.clipboard.writeText(url).then(() => showToast("Lien copié !"));
+        }
+
+        async function chargerMesListes() {
+            const { data } = await _supabase.from('listes_dons').select('*').eq('user_id', currentUserId).order('created_at', { ascending: false });
+            const c = document.getElementById('container-listes'); c.innerHTML = '';
+            data?.forEach(l => {
+                const dateStr = l.created_at ? new Date(l.created_at).toLocaleDateString('fr-FR') : '-';
+                const d = document.createElement('div');
+                d.className = "bg-white p-8 rounded-[3rem] shadow-sm border relative";
+                d.innerHTML = `
+                    <button onclick="supprimerListe('${l.id}')" class="absolute top-8 right-8">🗑️</button>
+                    <h3 class="font-bold text-xl mb-1">${l.titre || 'Sans titre'}</h3>
+                    <p class="text-[10px] text-gray-400 font-bold mb-8 uppercase tracking-tighter">Créée le : ${dateStr}</p>
+                    <button onclick='partagerListe("${l.id}")' class="w-full bg-emerald-600 text-white py-4 rounded-2xl text-xs font-bold mb-2">Partager la liste</button>
+                    <button onclick='chargerVuePublique("${l.id}", true)' class="w-full bg-blue-600 text-white py-4 rounded-2xl text-xs font-bold mb-2">Voir l'aperçu</button>
+                    <button onclick='ouvrirEditeur(${JSON.stringify(l).replace(/'/g, "&apos;")})' class="w-full bg-gray-100 py-3 rounded-2xl text-xs font-bold">Modifier</button>`;
+                c.appendChild(d);
+            });
+        }
+
+        async function genererGrille(projets, targetId, colorKey, listeId) {
+            const g = document.getElementById(targetId); g.innerHTML = '';
+            const btnColor = bgMap[colorKey] || bgMap.emerald;
+            for (const p of projets) {
+                const { data: parts } = await _supabase.from('participations').select('montant').eq('liste_id', listeId).eq('action_nom', p.nom);
+                const total = parts?.reduce((s, i) => s + Number(i.montant), 0) || 0;
+                const pct = Math.min(Math.round((total/p.objectif)*100), 100);
+                const hasPayment = p.url_pay && p.url_pay.trim() !== "";
+                const imgTarget = p.url_site || p.url_pay || "google.com";
+                const photoUrl = `https://image.thum.io/get/width/600/crop/800/noanimate/${imgTarget.startsWith('http')?imgTarget:'https://'+imgTarget}`;
+
+                const progressHtml = hasPayment ? `
+                    <div class="mb-4 text-[10px] font-black uppercase text-gray-400">
+                        <div class="flex justify-between mb-2">
+                            <span>${total}€ récoltés <span class="text-gray-300">/ ${p.objectif}€</span></span>
+                            <span>${pct}%</span>
+                        </div>
+                        <div class="progress-container"><div class="progress-bar ${btnColor}" style="width: ${pct}%"></div></div>
+                    </div>` : '';
+
+                const buttonHtml = hasPayment ? `
+                    <button onclick="ouvrirModalDon('${p.nom}', '${p.url_pay}', ${p.objectif}, '${listeId}', true)" 
+                            class="w-full py-5 mb-4 ${btnColor} text-white rounded-[1.5rem] font-bold shadow-lg">
+                        Faire un don
+                    </button>` : '';
+
+                g.innerHTML += `
+                    <div class="card-gradient p-6 rounded-[3rem] shadow-sm border flex flex-col">
+                        <div class="w-full h-48 bg-gray-100 rounded-[2rem] mb-6 overflow-hidden border border-gray-100">
+                            <img src="${photoUrl}" class="w-full h-full object-cover">
+                        </div>
+                        ${progressHtml}
+                        ${buttonHtml}
+                        <h3 class="text-xl font-bold text-gray-800">${p.nom}</h3>
+                        ${p.url_site ? `<a href="${p.url_site}" target="_blank" class="text-xs text-blue-500 font-bold underline mt-4 inline-block">Consulter la page officielle</a>` : ''}
+                    </div>`;
+            }
+        }
+
+        async function chargerAccueil() {
+            const { data } = await _supabase.from('listes_dons').select('*');
+            const feat = [];
+            data?.forEach(l => l.projets.forEach(p => { if(p.featured && p.valide) feat.push({...p, listeId: l.id, color: l.color}); }));
+            if(feat.length > 0) {
+                document.getElementById('actions-urgentes').classList.remove('hidden');
+                genererGrille(feat, 'home-featured-grid', 'emerald', feat[0].listeId);
+            }
+        }
+
+        function ouvrirModalDon(nom, payUrl, objectif, listeId, canPay) {
+            activeActionData = { nom, payUrl, objectif, listeId };
+            document.getElementById('modal-target-name').innerText = nom;
+            document.getElementById('modal-pay-link').href = payUrl;
+            const inputMontant = document.getElementById('don-montant');
+            const btnConfirm = document.getElementById('btn-modal-confirm');
+            inputMontant.value = '';
+            inputMontant.disabled = !canPay;
+            btnConfirm.disabled = !canPay;
+            document.getElementById('modal-step-1').classList.remove('hidden');
+            document.getElementById('modal-step-2').classList.add('hidden');
+            document.getElementById('modal-don').classList.remove('hidden');
+        }
+
+        function ouvrirPaiementDirect() {
+            if(!document.getElementById('don-montant').value) return showToast("Veuillez saisir un montant");
+            document.getElementById('modal-step-1').classList.add('hidden');
+            document.getElementById('modal-step-2').classList.remove('hidden');
+        }
+
+        async function validerDonFinal() {
+            const m = document.getElementById('don-montant').value;
+            await _supabase.from('participations').insert([{ liste_id: activeActionData.listeId, action_nom: activeActionData.nom, montant: Number(m), donateur_nom: "Anonyme" }]);
+            showToast("Merci ! Don enregistré.");
+            document.getElementById('modal-don').classList.add('hidden');
+            location.reload();
         }
 
         async function authAction() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-            const btn = document.getElementById('btn-main-auth');
-            const label = document.getElementById('label-auth');
-            if (!email || !password) return showToast("Veuillez remplir les champs");
-            btn.disabled = true;
-            label.innerHTML = `<span class="spinner"></span> Chargement...`;
-            if (isRegisterMode) {
-                const { data, error } = await _supabase.auth.signUp({ email, password });
-                if (error) alert(error.message); else if (data.session) checkSession(); else showToast("Vérifiez vos emails !");
-            } else {
-                const { error } = await _supabase.auth.signInWithPassword({ email, password });
-                if (error) alert(error.message); else checkSession();
-            }
-            btn.disabled = false;
-            label.innerText = isRegisterMode ? "S'inscrire" : "Se connecter";
+            if(isRegisterMode) await _supabase.auth.signUp({ email, password });
+            else await _supabase.auth.signInWithPassword({ email, password });
+            checkSession();
+        }
+        function toggleAuthMode() { isRegisterMode = !isRegisterMode; document.getElementById('register-fields').classList.toggle('hidden'); }
+        function handleLogout() { _supabase.auth.signOut().then(() => location.reload()); }
+        async function supprimerListe(id) { if(confirm("Supprimer ?")) { await _supabase.from('listes_dons').delete().eq('id', id); chargerMesListes(); } }
+        function cacherToutesVues() { ['app-home', 'vue-login', 'app-dashboard', 'app-editor', 'app-public', 'app-admin'].forEach(id => document.getElementById(id).classList.add('hidden')); }
+        function retourDashboard() { cacherToutesVues(); document.getElementById('app-dashboard').classList.remove('hidden'); chargerMesListes(); }
+        function showLogin(reg=false) { cacherToutesVues(); document.getElementById('vue-login').classList.remove('hidden'); if(reg && !isRegisterMode) toggleAuthMode(); }
+
+        function ouvrirEditeur(l=null) {
+            cacherToutesVues(); document.getElementById('app-editor').classList.remove('hidden');
+            document.getElementById('liste-actions').innerHTML = '';
+            if(l) {
+                document.getElementById('edit-id').value = l.id;
+                document.getElementById('input-titre').value = l.titre;
+                document.getElementById('input-desc').value = l.description;
+                document.getElementById('input-type').value = l.type_don;
+                document.getElementById('input-color').value = l.color;
+                l.projets.forEach(p => ajouterLigne(p.nom, p.url_site, p.url_pay, p.objectif, p.featured, p.valide));
+            } else { document.getElementById('edit-id').value = ''; ajouterLigne(); }
         }
 
-        async function sauvegarderListe() {
-            const btn = document.getElementById('btn-save');
-            const projects = [];
-            document.querySelectorAll('.action-item').forEach(item => {
-                const nom = item.querySelector('.action-nom').value;
-                const url = item.querySelector('.action-url').value;
-                if(nom && url) projects.push({ nom: nom.trim(), url: url.trim() });
-            });
-            btn.disabled = true;
-            btn.innerHTML = `<span class="spinner"></span> Sauvegarde...`;
-            const id = document.getElementById('edit-id').value;
-            const payload = { user_id: currentUserId, titre: document.getElementById('input-titre').value, description: document.getElementById('input-desc').value, type_don: document.getElementById('input-type').value, color: document.getElementById('input-color').value, projets: projects };
-            const { error } = id ? await _supabase.from('listes_dons').update(payload).eq('id', id) : await _supabase.from('listes_dons').insert([payload]);
-            if (error) alert(error.message); else { showToast("Enregistré !"); retourDashboard(); }
-            btn.disabled = false;
-            btn.innerText = "Enregistrer";
-        }
-
-        async function chargerMesListes() {
-            const order = document.getElementById('filter-date').value;
-            const { data } = await _supabase.from('listes_dons').select('*').eq('user_id', currentUserId).order('created_at', { ascending: (order === 'asc') });
-            const container = document.getElementById('container-listes');
-            container.innerHTML = '';
-
-            if (!data || data.length === 0) {
-                container.innerHTML = `<div class="list-card bg-white p-6 rounded-[2.5rem] shadow-sm border-2 border-dashed border-emerald-200 opacity-80 relative">
-                    <span class="absolute -top-3 left-6 example-badge">MODE EXEMPLE</span>
-                    <div class="mb-6">
-                        <h3 class="font-bold text-xl mb-1 line-clamp-2 pr-10">Exemple de collecte</h3>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="${colorMap.emerald} text-[10px] font-black uppercase px-2 py-0.5 rounded-full inline-block">Sadaqa</span>
-                            <span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-full inline-block">Aujourd'hui</span>
-                        </div>
-                    </div>
-                    <p class="text-xs text-emerald-600 font-bold mb-4">Créez votre première liste pour remplacer cet exemple !</p>
-                    <button onclick='ouvrirEditeur()' class="w-full bg-emerald-600 text-white py-3.5 rounded-2xl text-xs font-bold">Commencer ma liste</button>
-                </div>`;
-                return;
-            }
-
-            data.forEach(liste => {
-                const dateStr = new Date(liste.created_at).toLocaleDateString('fr-FR');
-                const badgeColor = colorMap[liste.color] || colorMap.emerald;
-                const div = document.createElement('div');
-                div.className = "list-card bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 animate-fade-in relative";
-                div.draggable = true;
-                div.addEventListener('dragstart', () => div.classList.add('dragging'));
-                div.addEventListener('dragend', () => div.classList.remove('dragging'));
-                div.innerHTML = `
-                    <button onclick="supprimerListe('${liste.id}')" class="absolute top-6 right-6 text-red-400">🗑️</button>
-                    <div class="mb-6">
-                        <h3 class="font-bold text-xl mb-1 line-clamp-2 pr-10">${liste.titre || 'Sans titre'}</h3>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="${badgeColor} text-[10px] font-black uppercase px-2 py-0.5 rounded-full inline-block">${liste.type_don}</span>
-                            <span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-full inline-block">Créé le ${dateStr}</span>
-                        </div>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <button onclick='chargerVuePublique("${liste.id}", true)' class="w-full bg-blue-600 text-white py-3.5 rounded-2xl text-xs font-bold">👁️ Voir l'aperçu</button>
-                        <div class="flex gap-2">
-                            <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="flex-1 bg-gray-100 py-3 rounded-2xl text-xs font-bold">⚙️ Modifier</button>
-                            <button onclick='copierLien("${liste.id}")' class="flex-1 bg-emerald-50 text-emerald-700 py-3 rounded-2xl text-xs font-bold">🔗 Partager</button>
-                        </div>
-                    </div>`;
-                container.appendChild(div);
-            });
-        }
-
-        async function chargerVuePublique(id, estApercu = false) {
+        async function chargerVuePublique(id, estApercu=false) {
             const { data } = await _supabase.from('listes_dons').select('*').eq('id', id).single();
-            if (!data) return;
-            cacherToutesVues();
-            document.getElementById('app-public').classList.remove('hidden');
+            cacherToutesVues(); document.getElementById('app-public').classList.remove('hidden');
             if(estApercu) document.getElementById('nav-aperçu').classList.remove('hidden');
-            const mainColorClass = colorMap[data.color] || colorMap.emerald;
-            const btnColorClass = bgMap[data.color] || bgMap.emerald;
-            document.getElementById('pub-badge').innerText = data.type_don;
-            document.getElementById('pub-badge').className = `px-4 py-1.5 rounded-full text-[10px] font-bold uppercase ${mainColorClass}`;
             document.getElementById('pub-titre').innerText = data.titre;
             document.getElementById('pub-desc').innerText = data.description;
-            const grid = document.getElementById('pub-grid');
-            grid.innerHTML = '';
-            data.projets.forEach(p => {
-                const cleanUrl = p.url.trim();
-                const photoUrl = `https://image.thum.io/get/width/600/crop/800/noanimate/viewportWidth/1200/${cleanUrl}`;
-                grid.innerHTML += `<div class="card-gradient p-5 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col animate-fade-in overflow-hidden"><div class="w-full h-44 bg-gray-100 rounded-3xl mb-4 overflow-hidden relative flex items-center justify-center shadow-inner border border-gray-200"><div class="absolute inset-0 flex items-center justify-center bg-gray-50 z-0"><div class="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div><img src="${photoUrl}" class="w-full h-full object-cover object-top opacity-0 transition-opacity duration-300 z-10" onload="this.style.opacity='1'"></div><a href="${cleanUrl}" target="_blank" class="w-full py-4 mb-4 ${btnColorClass} text-white rounded-2xl text-center font-bold">Participer</a><h3 class="text-xl font-bold text-gray-800 line-clamp-2 h-[3rem]">${p.nom}</h3></div>`;
-            });
+            document.getElementById('pub-badge').innerText = data.type_don;
+            document.getElementById('pub-badge').className = `px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${colorMap[data.color]}`;
+            genererGrille(data.projets, 'pub-grid', data.color, id);
         }
 
-        function ouvrirEditeur(liste = null) {
-            cacherToutesVues();
-            document.getElementById('app-editor').classList.remove('hidden');
-            document.getElementById('liste-actions').innerHTML = '';
-            if (liste) {
-                document.getElementById('edit-id').value = liste.id;
-                document.getElementById('input-titre').value = liste.titre;
-                document.getElementById('input-desc').value = liste.description;
-                document.getElementById('input-type').value = liste.type_don;
-                document.getElementById('input-color').value = liste.color || "emerald";
-                document.getElementById('btn-share-inline').classList.remove('hidden');
-                liste.projets.forEach(p => ajouterLigne(p.nom, p.url));
-            } else { document.getElementById('edit-id').value = ''; document.getElementById('input-color').value = "emerald"; document.getElementById('btn-share-inline').classList.add('hidden'); ajouterLigne(); }
-        }
-
-        function copierLien(id) { const url = `${window.location.origin}${window.location.pathname}?list=${id}`; navigator.clipboard.writeText(url).then(() => showToast("Lien copié !")); }
-        function copierLienDepuisEditeur() { const id = document.getElementById('edit-id').value; if(id) copierLien(id); }
-        function cacherToutesVues() { ['app-home', 'vue-login', 'app-dashboard', 'app-editor', 'app-public'].forEach(id => document.getElementById(id).classList.add('hidden')); document.getElementById('nav-aperçu').classList.add('hidden'); }
-        function retourDashboard() { cacherToutesVues(); document.getElementById('app-dashboard').classList.remove('hidden'); chargerMesListes(); }
-        async function supprimerListe(id) { if(confirm("Supprimer ?")) { await _supabase.from('listes_dons').delete().eq('id', id); chargerMesListes(); } }
-        async function handleForgotPassword() { const email = document.getElementById('login-email').value; if (!email) return showToast("Email manquant"); const { error } = await _supabase.auth.resetPasswordForEmail(email); if (error) alert(error.message); else showToast("Email envoyé"); }
-        function toggleAuthMode() { isRegisterMode = !isRegisterMode; document.getElementById('register-fields').classList.toggle('hidden'); document.getElementById('btn-main-auth').innerText = isRegisterMode ? "S'inscrire" : "Se connecter"; document.getElementById('btn-switch-auth').innerText = isRegisterMode ? "Déjà un compte ?" : "Créer un compte"; }
-        
-        async function checkSession() { 
-            const urlParams = new URLSearchParams(window.location.search); 
-            if (urlParams.get('list')) { chargerVuePublique(urlParams.get('list')); } 
-            else { 
-                const { data: { session } } = await _supabase.auth.getSession(); 
-                if (session) { currentUserId = session.user.id; document.getElementById('user-welcome').innerText = session.user.email; retourDashboard(); } 
-                else { cacherToutesVues(); document.getElementById('app-home').classList.remove('hidden'); } 
-            } 
-        }
-        function handleLogout() { _supabase.auth.signOut().then(() => location.reload()); }
-        
-        window.onload = () => {
-            checkSession();
-            enableDragAndDrop('liste-actions', '.action-item');
-            enableDragAndDrop('container-listes', '.list-card');
-        };
+        window.onload = checkSession;
     </script>
 </body>
 </html>
+
