@@ -58,7 +58,7 @@
                     <img id="modal-action-img" src="" class="w-full h-full object-cover">
                 </div>
                 <div class="flex-1 min-w-0">
-                    <h4 id="modal-target-name" class="font-extrabold text-emerald-700 leading-tight truncate"></h4>
+                    <h4 id="modal-target-name" class="font-extrabold text-emerald-700 leading-tight break-words"></h4>
                     <div class="text-[10px] font-bold text-slate-400 uppercase mt-1 tracking-widest">Objectif : <span id="modal-action-goal" class="text-slate-700"></span>€</div>
                 </div>
             </div>
@@ -232,8 +232,6 @@
     </div>
 
     <script>
-        // Le script reste exactement le même sur le fond, 
-        // j'ai juste harmonisé l'injection de classe mobile pour la grille.
         const SUPABASE_URL = "https://qrtfsakvzlkjqueurvci.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFydGZzYWt2emxranF1ZXVydmNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MDM5MDksImV4cCI6MjA4ODI3OTkwOX0.muCLFvI4h8p8jmjOgrRNKuqkLlD2Xbx9jxZKsSjMB4g";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -281,7 +279,7 @@
                     card.className = "bg-white p-5 rounded-2xl border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm";
                     card.innerHTML = `
                         <div>
-                            <h4 class="font-bold text-slate-800 text-sm">${p.nom}</h4>
+                            <h4 class="font-bold text-slate-800 text-sm break-words">${p.nom}</h4>
                             <p class="text-[9px] text-slate-400 font-bold uppercase mt-1 tracking-widest">Liste: ${l.titre}</p>
                             <p class="text-[9px] text-emerald-600 font-bold uppercase mt-0.5">Auteur: ${createurEmail}</p>
                         </div>
@@ -310,7 +308,7 @@
                     <div class="w-full h-48 md:h-56 bg-slate-100 rounded-2xl md:rounded-[2.5rem] mb-6 overflow-hidden border border-slate-50 shadow-inner">
                         <img src="https://image.thum.io/get/width/600/crop/800/noanimate/https://${imgSource}" class="w-full h-full object-cover">
                     </div>
-                    <h3 class="text-xl md:text-2xl font-extrabold text-slate-800 mb-2 truncate">${p.nom}</h3>
+                    <h3 class="text-xl md:text-2xl font-extrabold text-slate-800 mb-2 break-words leading-tight">${p.nom}</h3>
                     <div class="mb-6">
                         <div class="flex justify-between text-[10px] font-extrabold uppercase text-slate-400 mb-2">
                             <span>${total}€ / ${goal}€</span>
@@ -328,12 +326,6 @@
             }
         }
 
-        // --- TOUTES LES AUTRES FONCTIONS RESTENT IDENTIQUES À VOTRE CODE ---
-        // (ouvrirAdmin, toggleFeaturedAdmin, deleteActionAdmin, ouvrirModalDon, validerEtape1, 
-        // validerDonFinal, chargerMesListes, partagerListe, supprimerListe, cacherToutesVues, 
-        // retourDashboard, showLogin, chargerVuePublique, ajouterLigne, sauvegarderListe, 
-        // ouvrirEditeur, chargerAccueil, authAction, toggleAuthMode, handleLogout, resetPassword)
-
         function ouvrirAdmin() { cacherToutesVues(); document.getElementById('app-admin').classList.remove('hidden'); chargerValidationAdmin(); }
         async function toggleFeaturedAdmin(listeId, index, currentStatus) {
             const { data } = await _supabase.from('listes_dons').select('projets').eq('id', listeId).single();
@@ -342,12 +334,13 @@
             chargerValidationAdmin();
         }
         async function deleteActionAdmin(listeId, index) {
-            if (!confirm("Supprimer ?")) return;
+            if (!confirm("Supprimer cette action de la liste ?")) return;
             const { data } = await _supabase.from('listes_dons').select('projets').eq('id', listeId).single();
             let projs = data.projets; projs.splice(index, 1);
             await _supabase.from('listes_dons').update({ projets: projs }).eq('id', listeId);
             chargerValidationAdmin();
         }
+
         function ouvrirModalDon(nom, link, obj, listeId) {
             activeActionData = { nom, link, obj, listeId };
             document.getElementById('modal-target-name').innerText = nom;
@@ -358,19 +351,26 @@
             document.getElementById('modal-step-2').classList.add('hidden');
             document.getElementById('modal-don').classList.remove('hidden');
         }
+
         function validerEtape1() {
             if (!document.getElementById('don-nom').value || !document.getElementById('don-montant').value) return showToast("Veuillez remplir les champs.");
             document.getElementById('modal-pay-link').href = activeActionData.link.startsWith('http') ? activeActionData.link : 'https://' + activeActionData.link;
             document.getElementById('modal-step-1').classList.add('hidden');
             document.getElementById('modal-step-2').classList.remove('hidden');
         }
+
         async function validerDonFinal() {
             await _supabase.from('participations').insert([{
-                liste_id: activeActionData.listeId, action_nom: activeActionData.nom, montant: Number(document.getElementById('don-montant').value),
-                donateur_nom: document.getElementById('don-nom').value, donateur_email: document.getElementById('don-email').value, message: document.getElementById('don-message').value
+                liste_id: activeActionData.listeId,
+                action_nom: activeActionData.nom,
+                montant: Number(document.getElementById('don-montant').value),
+                donateur_nom: document.getElementById('don-nom').value,
+                donateur_email: document.getElementById('don-email').value,
+                message: document.getElementById('don-message').value
             }]);
             location.reload();
         }
+
         async function chargerMesListes() {
             const { data } = await _supabase.from('listes_dons').select('*').eq('user_id', currentUserId).order('created_at', { ascending: false });
             const container = document.getElementById('container-listes'); container.innerHTML = '';
@@ -379,93 +379,172 @@
                 div.className = "card-premium p-6 md:p-8 rounded-[2rem] relative";
                 div.innerHTML = `
                     <button onclick="supprimerListe('${liste.id}')" class="absolute top-6 right-6 text-slate-200 hover:text-red-500 transition-colors p-2">✕</button>
-                    <div class="mb-1"><span class="text-[9px] font-extrabold uppercase tracking-widest ${liste.color === 'emerald' ? 'text-emerald-500' : 'text-blue-500'}">${liste.type_don}</span></div>
+                    <div class="mb-1">
+                        <span class="text-[9px] font-extrabold uppercase tracking-widest ${liste.color === 'emerald' ? 'text-emerald-500' : 'text-blue-500'}">
+                            ${liste.type_don}
+                        </span>
+                    </div>
                     <h3 class="font-extrabold text-xl mb-6 text-slate-800 leading-tight">${liste.titre}</h3>
                     <div class="space-y-2">
-                        <button onclick='partagerListe("${liste.id}")' class="w-full bg-emerald-600 text-white py-3 rounded-xl text-[10px] font-extrabold uppercase btn-prestige">Partager</button>
+                        <button onclick='partagerListe("${liste.id}")' class="w-full bg-emerald-600 text-white py-3 rounded-xl text-[10px] font-extrabold uppercase tracking-widest btn-prestige">Partager le lien</button>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick='chargerVuePublique("${liste.id}", true)' class="bg-slate-800 text-white py-3 rounded-xl text-[10px] font-extrabold uppercase">Aperçu</button>
-                            <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="bg-slate-100 text-slate-600 py-3 rounded-xl text-[10px] font-extrabold uppercase">Éditer</button>
+                            <button onclick='chargerVuePublique("${liste.id}", true)' class="bg-slate-800 text-white py-3 rounded-xl text-[10px] font-extrabold uppercase tracking-widest">Aperçu</button>
+                            <button onclick='ouvrirEditeur(${JSON.stringify(liste).replace(/'/g, "&apos;")})' class="bg-slate-100 text-slate-600 py-3 rounded-xl text-[10px] font-extrabold uppercase tracking-widest">Éditer</button>
                         </div>
                     </div>`;
                 container.appendChild(div);
             });
         }
-        function partagerListe(id) { navigator.clipboard.writeText(window.location.origin + window.location.pathname + '?list=' + id).then(() => showToast("Lien copié.")); }
-        async function supprimerListe(id) { if (confirm("Supprimer ?")) { await _supabase.from('listes_dons').delete().eq('id', id); chargerMesListes(); } }
-        function cacherToutesVues() { ['app-home', 'vue-login', 'app-dashboard', 'app-admin', 'app-editor', 'app-public'].forEach(id => {
-            const el = document.getElementById(id); if(el) el.classList.add('hidden');
-        }); }
-        function retourDashboard() { cacherToutesVues(); document.getElementById('app-dashboard').classList.remove('hidden'); chargerMesListes(); }
-        function showLogin(register = false) { cacherToutesVues(); document.getElementById('vue-login').classList.remove('hidden'); if (register) toggleAuthMode(); }
+
+        function partagerListe(id) {
+            const url = window.location.origin + window.location.pathname + '?list=' + id;
+            navigator.clipboard.writeText(url).then(() => showToast("Lien copié dans le presse-papier !"));
+        }
+
+        async function supprimerListe(id) {
+            if (confirm("Supprimer définitivement cette liste ?")) {
+                await _supabase.from('listes_dons').delete().eq('id', id);
+                chargerMesListes();
+            }
+        }
+
+        function cacherToutesVues() {
+            ['app-home', 'vue-login', 'app-dashboard', 'app-admin', 'app-editor', 'app-public'].forEach(id => {
+                const el = document.getElementById(id); if(el) el.classList.add('hidden');
+            });
+        }
+
+        function retourDashboard() {
+            cacherToutesVues();
+            document.getElementById('app-dashboard').classList.remove('hidden');
+            chargerMesListes();
+        }
+
+        function showLogin(register = false) {
+            cacherToutesVues();
+            document.getElementById('vue-login').classList.remove('hidden');
+            if (register) toggleAuthMode();
+        }
+
         async function chargerVuePublique(id, estApercu = false) {
             const { data } = await _supabase.from('listes_dons').select('*').eq('id', id).single();
-            cacherToutesVues(); document.getElementById('app-public').classList.remove('hidden');
+            cacherToutesVues();
+            document.getElementById('app-public').classList.remove('hidden');
             if (estApercu) document.getElementById('nav-aperçu').classList.remove('hidden'); else document.getElementById('nav-aperçu').classList.add('hidden');
+            
             document.getElementById('pub-titre').innerText = data.titre;
             document.getElementById('pub-desc').innerText = data.description;
             document.getElementById('pub-badge').className = `inline-block px-5 py-2 rounded-full text-[10px] font-extrabold uppercase tracking-widest border ${colorMap[data.color]}`;
             document.getElementById('pub-badge').innerText = data.type_don;
+            
             const totalGoal = data.projets.reduce((sum, p) => sum + Number(p.objectif), 0);
             document.getElementById('pub-total-goal').innerText = `Objectif Global : ${totalGoal} €`;
+            
             genererGrille(data.projets, 'pub-grid', data.color, id);
         }
+
         function ajouterLigne(nom='', site='', pay='', goal=500, feat=false) {
-            const div = document.createElement('div'); div.className = "action-item p-6 bg-slate-50 rounded-2xl relative mb-4 border border-slate-100";
+            const div = document.createElement('div');
+            div.className = "action-item p-6 bg-slate-50 rounded-2xl relative mb-4 border border-slate-100";
             div.innerHTML = `
-                <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 bg-white text-slate-300 border rounded-full w-6 h-6 text-xs flex items-center justify-center">✕</button>
+                <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 bg-white text-slate-300 border rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-sm">✕</button>
                 <div class="grid grid-cols-1 gap-3 mb-3">
-                    <input type="text" placeholder="Nom" class="action-nom p-3 rounded-xl border-none font-bold text-sm" value="${nom}">
-                    <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border">
+                    <input type="text" placeholder="Nom de l'action" class="action-nom p-3 rounded-xl border-none font-bold text-sm shadow-sm" value="${nom}">
+                    <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-slate-100 shadow-sm">
                         <input type="checkbox" class="action-featured accent-emerald-600" ${feat?'checked':''}>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase">À la une</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mettre à la une</span>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                    <input type="text" placeholder="URL Site" class="action-url-site p-3 rounded-xl border-none text-[11px]" value="${site}">
-                    <input type="text" placeholder="Lien Paiement" class="action-url-pay p-3 rounded-xl border-none text-[11px]" value="${pay}">
+                    <input type="text" placeholder="URL du site de l'association" class="action-url-site p-3 rounded-xl border-none text-[11px] shadow-sm" value="${site}">
+                    <input type="text" placeholder="Lien direct de paiement" class="action-url-pay p-3 rounded-xl border-none text-[11px] shadow-sm" value="${pay}">
                 </div>
-                <input type="number" placeholder="Objectif €" class="action-objectif w-full p-3 border-none rounded-xl font-bold text-sm" value="${goal}">`;
+                <input type="number" placeholder="Objectif en €" class="action-objectif w-full p-3 border-none rounded-xl font-bold text-sm shadow-sm" value="${goal}">
+            `;
             document.getElementById('liste-actions').appendChild(div);
         }
+
         async function sauvegarderListe() {
-            const projets = []; document.querySelectorAll('.action-item').forEach(item => {
+            const projets = [];
+            document.querySelectorAll('.action-item').forEach(item => {
                 projets.push({
-                    nom: item.querySelector('.action-nom').value, url_site: item.querySelector('.action-url-site').value,
-                    url_pay: item.querySelector('.action-url-pay').value, objectif: item.querySelector('.action-objectif').value,
+                    nom: item.querySelector('.action-nom').value,
+                    url_site: item.querySelector('.action-url-site').value,
+                    url_pay: item.querySelector('.action-url-pay').value,
+                    objectif: item.querySelector('.action-objectif').value,
                     featured: item.querySelector('.action-featured').checked
                 });
             });
+
             const id = document.getElementById('edit-id').value;
-            const data = { user_id: currentUserId, titre: document.getElementById('input-titre').value, description: document.getElementById('input-desc').value, type_don: document.getElementById('input-type').value, color: document.getElementById('input-color').value, projets: projets };
-            if (id) await _supabase.from('listes_dons').update(data).eq('id', id); else await _supabase.from('listes_dons').insert([data]);
+            const data = {
+                user_id: currentUserId,
+                titre: document.getElementById('input-titre').value,
+                description: document.getElementById('input-desc').value,
+                type_don: document.getElementById('input-type').value,
+                color: document.getElementById('input-color').value,
+                projets: projets
+            };
+
+            if (id) await _supabase.from('listes_dons').update(data).eq('id', id);
+            else await _supabase.from('listes_dons').insert([data]);
+
             retourDashboard();
         }
+
         function ouvrirEditeur(liste = null) {
-            cacherToutesVues(); document.getElementById('app-editor').classList.remove('hidden');
+            cacherToutesVues();
+            document.getElementById('app-editor').classList.remove('hidden');
             document.getElementById('liste-actions').innerHTML = '';
+            
             if (liste) {
-                document.getElementById('edit-id').value = liste.id; document.getElementById('input-titre').value = liste.titre;
-                document.getElementById('input-desc').value = liste.description; document.getElementById('input-type').value = liste.type_don;
+                document.getElementById('edit-id').value = liste.id;
+                document.getElementById('input-titre').value = liste.titre;
+                document.getElementById('input-desc').value = liste.description;
+                document.getElementById('input-type').value = liste.type_don;
                 document.getElementById('input-color').value = liste.color;
                 liste.projets.forEach(p => ajouterLigne(p.nom, p.url_site, p.url_pay, p.objectif, p.featured));
-            } else { document.getElementById('edit-id').value = ''; ajouterLigne(); }
+            } else {
+                document.getElementById('edit-id').value = '';
+                ajouterLigne();
+            }
         }
+
         async function chargerAccueil() {
             const { data } = await _supabase.from('listes_dons').select('*');
-            const feat = []; data?.forEach(l => l.projets.forEach(p => { if(p.featured) feat.push({...p, listeId: l.id, color: l.color}); }));
-            if(feat.length > 0) { document.getElementById('actions-urgentes').classList.remove('hidden'); genererGrille(feat, 'home-featured-grid', 'emerald', feat[0].listeId); }
+            const feat = [];
+            data?.forEach(l => l.projets.forEach(p => {
+                if(p.featured) feat.push({...p, listeId: l.id, color: l.color});
+            }));
+            if(feat.length > 0) {
+                document.getElementById('actions-urgentes').classList.remove('hidden');
+                genererGrille(feat, 'home-featured-grid', 'emerald', feat[0].listeId);
+            }
         }
+
         async function authAction() {
-            const email = document.getElementById('login-email').value; const password = document.getElementById('login-password').value;
-            if (isRegisterMode) await _supabase.auth.signUp({ email, password }); else await _supabase.auth.signInWithPassword({ email, password });
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            if (isRegisterMode) await _supabase.auth.signUp({ email, password, options: { data: { role: 'user' } } }); 
+            else await _supabase.auth.signInWithPassword({ email, password });
             checkSession();
         }
-        function toggleAuthMode() { isRegisterMode = !isRegisterMode; document.getElementById('register-fields').classList.toggle('hidden'); document.getElementById('btn-switch-auth').innerText = isRegisterMode ? "Connexion" : "Créer un compte"; }
-        function handleLogout() { _supabase.auth.signOut().then(() => location.reload()); }
+
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            document.getElementById('register-fields').classList.toggle('hidden');
+            document.getElementById('btn-switch-auth').innerText = isRegisterMode ? "Déjà un compte" : "Créer un compte";
+        }
+
+        function handleLogout() {
+            _supabase.auth.signOut().then(() => location.reload());
+        }
+
         async function resetPassword() {
-            const e = document.getElementById('login-email').value; if (e) await _supabase.auth.resetPasswordForEmail(e);
-            showToast("Vérifiez vos emails.");
+            const e = document.getElementById('login-email').value;
+            if (!e) return showToast("Saisissez votre email.");
+            const { error } = await _supabase.auth.resetPasswordForEmail(e);
+            if (error) showToast("Erreur."); else showToast("Email envoyé.");
         }
 
         window.onload = checkSession;
